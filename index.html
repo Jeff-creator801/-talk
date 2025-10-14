@@ -2,144 +2,106 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>$Talk — PWA (Firebase)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>$Talk — мобильная PWA (Email Link)</title>
 
-  <!-- PWA manifest (подключится, если manifest.json в корне) -->
+  <!-- (Опционально) подключи manifest.json в корне репо -->
   <link rel="manifest" href="./manifest.json" />
 
   <style>
-    /* ========== ПАЛИТРА $Talk ========== */
+    /* Mobile-first дизайн для $Talk */
     :root{
-      --primary: #1e90ff;
-      --secondary: #ff6b6b;
-      --bg: #ffffff;
-      --text: #333333;
-      --muted: #666666;
-      --user-bubble: #e6f0ff;
-      --other-bubble: #f2f2f2;
-      --accent: #00c853;
-      --radius: 12px;
-      --gap: 12px;
-      --max-width: 900px;
+      --primary:#1e90ff;
+      --accent:#00c853;
+      --bg:#ffffff;
+      --text:#222;
+      --muted:#666;
+      --user-bubble:#e6f0ff;
+      --other-bubble:#f2f2f2;
+      --radius:12px;
     }
-
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);}
-    .app {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      border-left:1px solid #eee;
-      border-right:1px solid #eee;
-    }
-
-    header.app-header{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:12px;
-      background:linear-gradient(90deg,var(--primary),#3fb0ff);
-      color:#fff;
-      box-shadow: 0 2px 6px rgba(30,144,255,0.08);
-    }
-    .hamb {
-      width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;
-    }
-    .app-title{font-weight:700;font-size:18px}
-    main.container{display:flex;flex:1;overflow:hidden}
-
-    /* Left: chats list */
-    .chats {
-      width:320px;
-      min-width:240px;
-      border-right:1px solid #eee;
-      background:#fff;
-      display:flex;
-      flex-direction:column;
-      padding:10px;
-      gap:8px;
-    }
-    .search {padding:8px;border-radius:10px;background:#f9f9f9;display:flex;gap:8px;align-items:center}
-    .chat-item {padding:10px;border-radius:10px;display:flex;gap:10px;align-items:center;cursor:pointer}
-    .chat-item:hover{background:#fafafa}
-    .avatar {width:44px;height:44px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-    .chat-meta {flex:1}
-    .chat-name{font-weight:600}
-    .chat-last{font-size:12px;color:var(--muted)}
-
-    /* Right: chat area */
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;color:var(--text)}
+    .app{height:100vh;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white}
+    .menu-btn{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center}
+    .title{font-weight:700;font-size:18px}
+    main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    /* chats list collapsible on mobile */
+    .top-controls{display:flex;gap:8px;padding:10px;background:#fff;border-bottom:1px solid #eee}
+    .chats-list{display:flex;flex-direction:column;gap:8px;padding:10px;overflow:auto}
+    .chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,0.03);cursor:pointer}
+    .chat-item .ava{width:44px;height:44;border-radius:10px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:600}
+    .chat-meta{flex:1}
+    .chat-meta .name{font-weight:600}
+    .chat-meta .last{font-size:13px;color:var(--muted)}
     .chat-area{flex:1;display:flex;flex-direction:column;background:#fff}
-    .chat-window{flex:1;padding:16px;overflow:auto;display:flex;flex-direction:column;gap:8px}
-    .msg {max-width:75%;padding:10px;border-radius:12px}
-    .msg.user{align-self:flex-end;background:var(--user-bubble)}
-    .msg.other{align-self:flex-start;background:var(--other-bubble)}
+    .messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+    .msg{max-width:78%;padding:10px;border-radius:12px}
+    .msg.me{align-self:flex-end;background:var(--user-bubble)}
+    .msg.you{align-self:flex-start;background:var(--other-bubble)}
     .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
-
-    .composer{display:flex;padding:10px;border-top:1px solid #eee;gap:8px;align-items:center}
-    .composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-    .composer button{background:var(--accent);border:none;color:white;padding:10px 14px;border-radius:10px;cursor:pointer}
-
-    /* Sidebar profile (drawer) */
-    .drawer {position:fixed;left:-320px;top:0;bottom:0;width:320px;background:#fff;box-shadow:2px 0 12px rgba(0,0,0,0.1);padding:16px;transition:left .22s;z-index:50}
+    .composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:#fff}
+    .composer input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
+    .btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px}
+    .btn.ghost{background:#f5f5f5;color:var(--text)}
+    .drawer{position:fixed;left:-320px;top:0;width:320px;height:100%;background:#fff;box-shadow:2px 0 12px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
     .drawer.open{left:0}
-    .drawer h3{margin:0 0 8px 0}
     .field{margin-bottom:10px}
     .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    .field input[type="text"], .field textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #eee}
-    .small{font-size:12px;color:var(--muted)}
-
-    /* Login overlay */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:40}
-    .card{width:92%;max-width:420px;background:#fff;padding:20px;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.2)}
-    .brand{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-    .brand .logo{width:48px;height:48px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-    .muted{color:var(--muted);font-size:13px;margin-bottom:10px}
-
-    .btn {background:var(--primary);color:#fff;padding:10px;border-radius:10px;border:none;width:100%;cursor:pointer}
-    .btn.ghost{background:#f5f5f5;color:var(--text)}
-    .hint{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
-
-    /* responsive */
-    @media (max-width:800px){
-      .chats{display:none}
-      .app{border:none}
-      .hamb{display:inline-flex}
+    .field input, .field textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #eee}
+    /* Login modal (mobile centered) */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:50}
+    .card{width:92%;max-width:420px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+    .logo{width:46px;height:46;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;margin-right:10px}
+    .muted{color:var(--muted);font-size:13px}
+    .center{text-align:center}
+    /* responsive tweak */
+    @media(min-width:720px){
+      main{flex-direction:row}
+      .left-col{width:320px;border-right:1px solid #eee;display:flex;flex-direction:column}
+      .right-col{flex:1}
+      .top-controls{display:none}
     }
   </style>
 </head>
 <body>
-  <div class="app" id="app">
-    <header class="app-header">
-      <div class="hamb" id="hamb-btn" title="Меню ☰">
+  <div class="app">
+    <header>
+      <div class="menu-btn" id="menuBtn" title="Профиль ☰">
         <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect y="0" width="18" height="2" rx="1" fill="white"/><rect y="5" width="18" height="2" rx="1" fill="white"/><rect y="10" width="18" height="2" rx="1" fill="white"/></svg>
       </div>
-      <div class="app-title">$Talk</div>
+      <div class="title">$Talk</div>
       <div style="flex:1"></div>
-      <div id="userBadge" class="small muted"></div>
+      <div id="badge" class="muted" style="font-size:14px"></div>
     </header>
 
-    <main class="container">
-      <aside class="chats" id="chatsList">
-        <div class="search">
-          <input id="searchInput" placeholder="Поиск чатов или контакт..." style="flex:1;border:none;background:transparent;outline:none"/>
-          <button id="newChatBtn" class="btn ghost" style="width:auto;padding:6px 10px">Новый</button>
+    <main>
+      <!-- left column (mobile: top controls) -->
+      <div class="left-col" id="leftCol" style="display:none">
+        <div class="top-controls">
+          <input id="search" placeholder="Поиск..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #eee" />
+          <button id="newBtn" class="btn ghost" style="padding:8px 10px">Новый</button>
         </div>
-        <div id="chatsContainer" style="overflow:auto;padding-top:8px"></div>
-      </aside>
+        <div class="chats-list" id="chatsList"></div>
+      </div>
 
-      <section class="chat-area">
-        <div class="chat-window" id="chatWindow">
-          <!-- messages -->
+      <!-- on mobile show top controls -->
+      <div class="top-controls" id="topControlsMobile" style="display:flex">
+        <input id="searchMobile" placeholder="Поиск контактов..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #eee" />
+        <button id="newBtnM" class="btn ghost" style="padding:8px 10px">Новый</button>
+      </div>
+
+      <div class="right-col chat-area" style="flex:1;display:flex;flex-direction:column">
+        <div class="messages" id="messages">
+          <div class="center muted">Выберите чат или создайте новый</div>
         </div>
 
         <div class="composer">
-          <input type="text" id="messageInput" placeholder="Напишите сообщение..." />
-          <button id="sendBtn">Отправить</button>
+          <input id="msgInput" placeholder="Напишите сообщение..." autocomplete="off" />
+          <button id="sendMsg" class="btn">Отправить</button>
         </div>
-      </section>
+      </div>
     </main>
   </div>
 
@@ -147,81 +109,72 @@
   <div class="drawer" id="drawer">
     <h3>Профиль</h3>
     <div class="field">
-      <label>Телефон</label>
-      <input type="text" id="profilePhone" disabled />
+      <label>Email</label>
+      <input id="profileEmail" disabled />
     </div>
     <div class="field">
       <label>Имя</label>
-      <input type="text" id="profileName" maxlength="30" placeholder="Например: Ali" />
+      <input id="profileName" maxlength="30" placeholder="Например: Ali" />
     </div>
     <div class="field">
-      <label>Логин (должен начинаться с $)</label>
-      <input type="text" id="profileLogin" placeholder="$Ali" />
-      <div class="small" id="loginHint">Логин будет уникален в Firestore (проверим).</div>
+      <label>Логин (начинается с $)</label>
+      <input id="profileLogin" placeholder="$Ali" />
+      <div class="muted" style="font-size:12px">Логин должен начинаться с $</div>
     </div>
     <div class="field">
       <label>О себе (до 100 символов)</label>
       <textarea id="profileAbout" maxlength="100" rows="3" placeholder="Расскажи о себе"></textarea>
     </div>
-
-    <div style="display:flex;gap:8px;margin-top:6px">
+    <div style="display:flex;gap:8px">
       <button id="saveProfile" class="btn">Сохранить</button>
-      <button id="logoutBtn" class="btn ghost">Выйти</button>
-    </div>
-
-    <div style="margin-top:14px" class="small muted">
-      $Talk — PWA. Для продакшна настрой правила Firestore и Storage.
+      <button id="logout" class="btn ghost">Выйти</button>
     </div>
   </div>
 
-  <!-- Login overlay -->
+  <!-- Login overlay (Email Link) -->
   <div id="loginOverlay" class="overlay" style="display:none">
     <div class="card">
-      <div class="brand">
+      <div style="display:flex;align-items:center;margin-bottom:8px">
         <div class="logo">$</div>
         <div>
-          <div style="font-weight:700">$Talk</div>
-          <div class="muted">Вход по номеру телефона</div>
+          <div style="font-weight:700;font-size:16px">$Talk</div>
+          <div class="muted">Вход по email — безопасно и бесплатно</div>
         </div>
       </div>
 
-      <div id="stepPhone">
-        <label class="small">Введите номер телефона (включая код страны)</label>
-        <input type="text" id="phoneInput" placeholder="+7..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:10px"/>
-        <div id="recaptcha-container"></div>
-        <button id="sendCodeBtn" class="btn">Отправить код</button>
-        <div class="hint">После отправки вы увидите поле ввода кода. (Firebase отправляет реальное SMS)</div>
+      <div id="emailStep">
+        <label class="muted">Введите email</label>
+        <input id="emailInput" type="email" placeholder="you@example.com" style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-top:6px" />
+        <div style="height:10px"></div>
+        <button id="sendLinkBtn" class="btn">Отправить ссылку для входа</button>
+        <div class="muted center" style="margin-top:10px;font-size:13px">Проверь почту — перейди по ссылке, чтобы войти</div>
       </div>
 
-      <div id="stepCode" style="display:none;margin-top:8px">
-        <label class="small">Введите код из SMS</label>
-        <input type="text" id="codeInput" placeholder="1234" style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:10px"/>
-        <button id="verifyCodeBtn" class="btn">Войти</button>
-        <button id="backToPhone" class="btn ghost" style="margin-top:8px">Назад</button>
-        <div class="muted hint" id="simCodeHint" style="margin-top:8px"></div>
+      <div id="afterSend" style="display:none;margin-top:12px">
+        <div class="muted">Письмо отправлено. Проверь почту и нажми ссылку. После перехода ты вернёшься на эту страницу и автоматически войдёшь.</div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase + App logic (ES module) -->
+  <!-- Firebase + App logic -->
   <script type="module">
-    /*************************************************************************
-     * $Talk — PWA front (Firebase)
-     * - Uses Firebase Auth (Phone) + Firestore (chats, messages, users)
-     * - Real-time listeners for chats and messages (onSnapshot)
+    /**
+     * $Talk mobile PWA — Email Link auth + Firestore chats/messages
+     * - Modular Firebase v9 via CDN
+     * - Email sign-in link (passwordless) — no billing required
+     * - Uses email as user identifier for chats/participants
      *
-     * IMPORTANT:
-     *  - Enable Phone Authentication in Firebase Console
-     *  - Configure Firestore rules for your app (for testing you can use open rules, but secure later)
-     **************************************************************************/
+     * Проверено: импорты, flow входа, onSnapshot слушатели, send message flow.
+     */
 
-    // ===== IMPORTS (Firebase v9 modular via CDN) =====
+    // ---- Firebase imports (v9 modular CDN) ----
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
     import {
       getAuth,
-      RecaptchaVerifier,
-      signInWithPhoneNumber,
+      sendSignInLinkToEmail,
+      isSignInWithEmailLink,
+      signInWithEmailLink,
+      signOut,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
     import {
@@ -235,395 +188,338 @@
       orderBy,
       addDoc,
       onSnapshot,
-      serverTimestamp
+      serverTimestamp,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // ====== FIREBASE CONFIG (user provided) ======
+    // ---- Firebase config (твоя конфигурация) ----
     const firebaseConfig = {
       apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
       authDomain: "talk-f1ff9.firebaseapp.com",
-      databaseURL: "https://talk-f1ff9-default-rtdb.firebaseio.com",
       projectId: "talk-f1ff9",
-      storageBucket: "talk-f1ff9.firebasestorage.app",
+      storageBucket: "talk-f1ff9.appspot.com",
       messagingSenderId: "856136352939",
       appId: "1:856136352939:web:87c28128d4951f909f63ee",
       measurementId: "G-3KDE4QT7PF"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    try { getAnalytics(app); } catch(e) { /* analytics may fail in some environments */ }
-
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ====== DOM ======
-    const $ = id => document.getElementById(id);
-    const loginOverlay = $('loginOverlay');
-    const stepPhone = $('stepPhone'), stepCode = $('stepCode');
-    const phoneInput = $('phoneInput'), sendCodeBtn = $('sendCodeBtn');
-    const codeInput = $('codeInput'), verifyCodeBtn = $('verifyCodeBtn'), backToPhone = $('backToPhone');
-    const simCodeHint = $('simCodeHint');
+    // ---- DOM ----
+    const loginOverlay = document.getElementById('loginOverlay');
+    const sendLinkBtn = document.getElementById('sendLinkBtn');
+    const emailInput = document.getElementById('emailInput');
+    const afterSend = document.getElementById('afterSend');
 
-    const drawer = $('drawer'), hambBtn = $('hamb-btn'), saveProfile = $('saveProfile'), logoutBtn = $('logoutBtn');
-    const profilePhone = $('profilePhone'), profileName = $('profileName'), profileLogin = $('profileLogin'), profileAbout = $('profileAbout');
-    const userBadge = $('userBadge');
+    const badge = document.getElementById('badge');
+    const menuBtn = document.getElementById('menuBtn');
+    const drawer = document.getElementById('drawer');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileName = document.getElementById('profileName');
+    const profileLogin = document.getElementById('profileLogin');
+    const profileAbout = document.getElementById('profileAbout');
+    const saveProfile = document.getElementById('saveProfile');
+    const logoutBtn = document.getElementById('logout');
 
-    const chatsContainer = $('chatsContainer'), chatWindow = $('chatWindow'), messageInput = $('messageInput'), sendBtn = $('sendBtn');
-    const newChatBtn = $('newChatBtn');
+    const chatsList = document.getElementById('chatsList');
+    const topControlsMobile = document.getElementById('topControlsMobile');
+    const newBtnM = document.getElementById('newBtnM');
+    const messagesEl = document.getElementById('messages');
+    const msgInput = document.getElementById('msgInput');
+    const sendMsg = document.getElementById('sendMsg');
 
-    // ====== State ======
-    let currentUser = null; // { uid, phone, name, login, about }
-    let chatsUnsubscribe = null;
-    let messagesUnsubscribe = null;
-    let activeChat = null; // { id, participants... }
+    // ---- State ----
+    let currentUser = null; // { uid, email, name, login, about }
+    let chatsUnsub = null;
+    let msgsUnsub = null;
+    let activeChatId = null;
 
-    // ====== UI helpers ======
-    function openLogin(){ loginOverlay.style.display = 'flex'; stepPhone.style.display='block'; stepCode.style.display='none'; }
-    function closeLogin(){ loginOverlay.style.display = 'none'; }
-    function openDrawer(){ drawer.classList.add('open'); }
-    function closeDrawer(){ drawer.classList.remove('open'); }
+    // ---- Helpers ----
+    const showToast = (t) => { alert(t); };
+    const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
 
-    function showToast(msg){ alert(msg); } // simple for demo — replace with nicer UI if needed
+    // ---- Email Link flow ----
+    const actionCodeSettings = {
+      url: window.location.href,
+      handleCodeInApp: true
+    };
 
-    // ====== Auth (reCAPTCHA) ======
-    // Create invisible reCAPTCHA
-    function initRecaptcha(){
-      // eslint-disable-next-line no-undef
-      window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-        'size': 'invisible'
-      }, auth);
-      window.recaptchaVerifier.render().then(()=>{/* rendered */});
-    }
-
-    // Send code
-    sendCodeBtn.addEventListener('click', async ()=> {
-      const phone = phoneInput.value.trim();
-      if(!phone) return showToast('Введите телефон, включая код страны (например +7...)');
+    sendLinkBtn.addEventListener('click', async () => {
+      const email = (emailInput.value || '').trim();
+      if(!email) return showToast('Введите email');
       try {
-        if(!window.recaptchaVerifier) initRecaptcha();
-        const confirmationResult = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier);
-        window.confirmationResult = confirmationResult;
-        stepPhone.style.display = 'none';
-        stepCode.style.display = 'block';
-      } catch (err) {
-        console.error('sendCode error', err);
-        showToast('Ошибка отправки SMS: ' + (err.message || err.code || err));
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+        // Save email to localStorage to complete sign-in later
+        localStorage.setItem('emailForSignIn', email);
+        afterSend.style.display = 'block';
+        showToast('Ссылка отправлена — проверьте почту');
+      } catch(err) {
+        console.error('sendSignInLinkToEmail error', err);
+        showToast('Ошибка отправки ссылки: ' + (err.message || err.code || err));
       }
     });
 
-    backToPhone.addEventListener('click', ()=> { stepCode.style.display='none'; stepPhone.style.display='block'; });
-
-    // Verify code
-    verifyCodeBtn.addEventListener('click', async ()=> {
-      const code = codeInput.value.trim();
-      if(!code) return showToast('Введите код из SMS');
+    // If user clicked link in email and returned
+    window.addEventListener('load', async () => {
       try {
-        const confirmationResult = window.confirmationResult;
-        if(!confirmationResult) return showToast('Подтверждение не найдено. Попробуйте отправить код ещё раз.');
-        const result = await confirmationResult.confirm(code);
-        const firebaseUser = result.user;
-        // create or update user profile in Firestore
-        const userRef = doc(db, 'users', firebaseUser.uid);
-        await setDoc(userRef, {
-          phone: firebaseUser.phoneNumber,
-          name: '',
-          login: '$' + (firebaseUser.phoneNumber.replace(/\D/g,'').slice(-4)),
-          about: '',
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        // local state
-        currentUser = { uid: firebaseUser.uid, phone: firebaseUser.phoneNumber, name: '', login:'$'+(firebaseUser.phoneNumber.replace(/\D/g,'').slice(-4)), about:'' };
-        syncProfileForm();
-        closeLogin();
-        showToast('Вы вошли в $Talk');
-        startChatsListener();
-      } catch (err) {
-        console.error('verify error', err);
-        showToast('Ошибка входа: ' + (err.message || err.code || err));
+        if (isSignInWithEmailLink(auth, window.location.href)) {
+          let email = localStorage.getItem('emailForSignIn');
+          if(!email) email = prompt('Введите email, на который был отправлен код');
+          try {
+            const result = await signInWithEmailLink(auth, email, window.location.href);
+            // result.user is signed in
+            localStorage.removeItem('emailForSignIn');
+            showToast('Вход выполнен');
+          } catch(err) {
+            console.error('signInWithEmailLink error', err);
+            showToast('Ошибка входа по ссылке: ' + (err.message || err.code || err));
+          }
+        }
+      } catch(e){
+        console.error('isSignInWithEmailLink check error', e);
       }
     });
 
-    // Listen auth state (for page reloads)
-    onAuthStateChanged(auth, async (firebaseUser) => {
-      if(firebaseUser){
-        // load profile from Firestore
-        const userRef = doc(db, 'users', firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
-        if(userSnap.exists()){
-          const data = userSnap.data();
+    // ---- Auth state listener ----
+    onAuthStateChanged(auth, async (user) => {
+      if(user){
+        // load/create user profile in Firestore
+        const uRef = doc(db, 'users', user.uid);
+        const snap = await getDocSafe(uRef);
+        if(snap && snap.exists()){
+          const data = snap.data();
           currentUser = {
-            uid: firebaseUser.uid,
-            phone: data.phone || firebaseUser.phoneNumber,
+            uid: user.uid,
+            email: data.email || user.email,
             name: data.name || '',
-            login: data.login || '$' + (firebaseUser.phoneNumber.replace(/\D/g,'').slice(-4)),
+            login: data.login || ('$' + (user.email.split('@')[0].slice(0,8))),
             about: data.about || ''
           };
         } else {
-          // create minimal record
-          await setDoc(userRef, {
-            phone: firebaseUser.phoneNumber,
+          // create minimal profile
+          await setDoc(uRef, {
+            email: user.email,
             name: '',
-            login: '$' + (firebaseUser.phoneNumber.replace(/\D/g,'').slice(-4)),
+            login: '$' + (user.email.split('@')[0].slice(0,8)),
             about: '',
             createdAt: serverTimestamp()
           }, { merge: true });
-          currentUser = { uid: firebaseUser.uid, phone: firebaseUser.phoneNumber, name:'', login:'$'+(firebaseUser.phoneNumber.replace(/\D/g,'').slice(-4)), about:'' };
+          currentUser = { uid: user.uid, email: user.email, name:'', login:'$' + (user.email.split('@')[0].slice(0,8)), about:'' };
         }
         syncProfileForm();
-        closeLogin();
+        loginOverlay.style.display = 'none';
         startChatsListener();
+        renderUserBadge();
       } else {
-        // not logged
+        // logged out
         currentUser = null;
-        stopChatsListener();
-        openLogin();
+        stopListeners();
+        clearUI();
+        loginOverlay.style.display = 'flex';
+        renderUserBadge();
       }
-      renderUserBadge();
     });
 
-    // ====== Firestore: chats & messages ======
-    // Start listening to chats where current user's phone is a participant
+    // ---- Firestore helpers ----
+    async function getDocSafe(ref){
+      try { return await getDoc(ref); }
+      catch(e){ console.error('getDocSafe', e); return null; }
+    }
+
+    async function getDocsSafe(q){
+      try { return await getDocs(q); }
+      catch(e){ console.error('getDocsSafe', e); return { forEach: ()=>{} }; }
+    }
+
+    // ---- Chats listener ----
     function startChatsListener(){
       if(!currentUser) return;
-      // unsubscribe previous
-      if(chatsUnsubscribe) chatsUnsubscribe();
-
-      // Query chats where participants array contains currentUser.phone
+      if(chatsUnsub) chatsUnsub();
       const chatsRef = collection(db, 'chats');
-      const q = query(chatsRef, where('participants', 'array-contains', currentUser.phone), orderBy('updatedAt', 'desc'));
-      chatsUnsubscribe = onSnapshot(q, snapshot => {
-        const chats = [];
-        snapshot.forEach(docSnap => {
-          chats.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        renderChats(chats);
-      }, err => {
-        console.error('chats onSnapshot error', err);
-      });
+      const q = query(chatsRef, where('participants', 'array-contains', currentUser.email), orderBy('updatedAt','desc'));
+      // Note: if Firestore asks for composite index, follow the console link to create it
+      chatsUnsub = onSnapshot(q, snap => {
+        const arr = [];
+        snap.forEach(d=> arr.push({ id:d.id, ...d.data() }));
+        renderChats(arr);
+      }, err => { console.error('chats onSnapshot', err); showToast('Ошибка чтения чатов'); });
     }
 
-    function stopChatsListener(){
-      if(chatsUnsubscribe) { chatsUnsubscribe(); chatsUnsubscribe = null; }
-      if(messagesUnsubscribe) { messagesUnsubscribe(); messagesUnsubscribe = null; }
-      chatsContainer.innerHTML = '';
-      chatWindow.innerHTML = '';
+    function stopListeners(){
+      if(chatsUnsub) { chatsUnsub(); chatsUnsub = null; }
+      if(msgsUnsub)  { msgsUnsub(); msgsUnsub = null; }
+      activeChatId = null;
     }
 
-    // Open chat and listen messages
-    function openChatById(chatId){
-      activeChat = chatId;
-      // unsubscribe previous messages listener
-      if(messagesUnsubscribe) messagesUnsubscribe();
-
-      const messagesRef = collection(db, 'chats', chatId, 'messages');
-      const q = query(messagesRef, orderBy('createdAt', 'asc'));
-      messagesUnsubscribe = onSnapshot(q, snapshot => {
-        const msgs = [];
-        snapshot.forEach(s => { msgs.push({ id: s.id, ...s.data() }); });
-        renderMessages(msgs);
-      }, err => {
-        console.error('messages onSnapshot error', err);
-      });
+    // open a chat by id and listen messages
+    function openChat(chatId){
+      activeChatId = chatId;
+      // stop previous messages listener
+      if(msgsUnsub) msgsUnsub();
+      const msgsRef = collection(db, 'chats', chatId, 'messages');
+      const q = query(msgsRef, orderBy('createdAt','asc'));
+      msgsUnsub = onSnapshot(q, snap => {
+        const arr = [];
+        snap.forEach(d => arr.push({ id:d.id, ...d.data() }));
+        renderMessages(arr);
+      }, err => { console.error('messages onSnapshot', err); showToast('Ошибка получения сообщений'); });
     }
 
-    // Create new chat (participants are phone numbers)
-    async function createChatWith(phone){
-      if(!currentUser) return showToast('Не авторизованы');
-      // check if chat exists (simple query: where participants array-contains both phones)
-      // Firestore doesn't allow array-contains for two values in one query; so we do client-side check:
+    // ---- Create or open chat with email ----
+    async function createOrOpenChatWith(email){
+      if(!currentUser) return showToast('Сначала войдите');
+      // check existing chats where current user participates
       const chatsRef = collection(db, 'chats');
-      const q = query(chatsRef, where('participants', 'array-contains', currentUser.phone));
-      const snapshot = await getDocsSafe(q);
+      const q = query(chatsRef, where('participants', 'array-contains', currentUser.email));
+      const snap = await getDocsSafe(q);
       let found = null;
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        if(Array.isArray(data.participants) && data.participants.includes(phone)){
-          found = { id: docSnap.id, ...data };
-        }
+      snap.forEach(d => {
+        const data = d.data();
+        if(Array.isArray(data.participants) && data.participants.includes(email)) found = { id: d.id, ...data };
       });
-
-      if(found){
-        openChatById(found.id);
-        return;
-      }
-
-      // create new
-      const newChatRef = await addDoc(collection(db, 'chats'), {
-        participants: [ currentUser.phone, phone ],
+      if(found){ openChat(found.id); return; }
+      // create new chat
+      const newChatRef = await addDoc(collection(db,'chats'), {
+        participants: [ currentUser.email, email ],
         lastMessage: '',
         updatedAt: serverTimestamp()
       });
-      openChatById(newChatRef.id);
+      openChat(newChatRef.id);
     }
 
-    // send message to current active chat
+    // ---- Send message ----
     async function sendMessage(text){
-      if(!activeChat) return showToast('Откройте чат');
-      if(!text || !currentUser) return;
+      if(!activeChatId) return showToast('Откройте чат');
+      if(!text) return;
       try {
-        // add message document
-        await addDoc(collection(db, 'chats', activeChat, 'messages'), {
-          from: currentUser.phone,
+        await addDoc(collection(db,'chats', activeChatId, 'messages'), {
+          from: currentUser.email,
           text,
           createdAt: serverTimestamp()
         });
-        // update chat lastMessage and updatedAt
-        const chatRef = doc(db, 'chats', activeChat);
+        // update chat summary
+        const chatRef = doc(db,'chats', activeChatId);
         await setDoc(chatRef, { lastMessage: text, updatedAt: serverTimestamp() }, { merge: true });
-      } catch (err) {
-        console.error('sendMessage error', err);
-        showToast('Ошибка отправки: ' + (err.message || err));
+      } catch(err){
+        console.error('sendMessage', err);
+        showToast('Ошибка отправки сообщения');
       }
     }
 
-    // ====== Helpers for rendering ======
-    function renderUserBadge(){
-      userBadge.textContent = currentUser ? (currentUser.name || currentUser.phone) : '';
+    // ---- Render UI ----
+    function renderUserBadge(){ badge.textContent = currentUser ? (currentUser.name || currentUser.email) : ''; }
+
+    function clearUI(){
+      chatsList.innerHTML = '';
+      messagesEl.innerHTML = '<div class="center muted">Выберите чат или создайте новый</div>';
+      profileEmail.value = ''; profileName.value=''; profileLogin.value=''; profileAbout.value='';
     }
 
     function renderChats(chats){
-      chatsContainer.innerHTML = '';
-      if(!chats || !chats.length){
-        chatsContainer.innerHTML = `<div class="muted" style="padding:12px">Нет чатов — создайте новый</div>`;
+      // if on small screen show list in top area
+      chatsList.innerHTML = '';
+      if(!chats.length) {
+        chatsList.innerHTML = '<div class="muted" style="padding:12px">Чатов нет — создайте новый</div>';
         return;
       }
       chats.forEach(c => {
-        const other = (c.participants || []).find(p => p !== (currentUser && currentUser.phone));
+        const other = (c.participants||[]).find(p => p !== currentUser.email) || 'User';
         const el = document.createElement('div');
         el.className = 'chat-item';
-        el.innerHTML = `
-          <div class="avatar">${(other || 'U').slice(-2)}</div>
-          <div class="chat-meta">
-            <div class="chat-name">${other || 'Неизвестно'}</div>
-            <div class="chat-last">${c.lastMessage || 'Новый чат'}</div>
-          </div>
-          <div class="small muted">${timestampToTime(c.updatedAt)}</div>
-        `;
-        el.onclick = ()=> openChatById(c.id);
-        chatsContainer.appendChild(el);
+        el.innerHTML = `<div class="ava">${other.slice(0,2).toUpperCase()}</div>
+                        <div class="chat-meta"><div class="name">${escapeHtml(other)}</div><div class="last">${escapeHtml(c.lastMessage||'')}</div></div>`;
+        el.onclick = ()=> openChat(c.id);
+        chatsList.appendChild(el);
       });
     }
 
     function renderMessages(msgs){
-      chatWindow.innerHTML = '';
-      if(!msgs || !msgs.length){ chatWindow.innerHTML = `<div class="muted" style="margin:auto;text-align:center">Чат пуст</div>`; return; }
+      messagesEl.innerHTML = '';
+      if(!msgs || !msgs.length){ messagesEl.innerHTML = '<div class="center muted">Чат пуст</div>'; return; }
       msgs.forEach(m => {
         const div = document.createElement('div');
-        const cls = (m.from === (currentUser && currentUser.phone)) ? 'msg user' : 'msg other';
+        const cls = (m.from === currentUser.email) ? 'msg me' : 'msg you';
         div.className = cls;
-        div.innerHTML = `<div class="meta">${m.from} · ${timestampToTime(m.createdAt)}</div><div>${escapeHtml(m.text)}</div>`;
-        chatWindow.appendChild(div);
+        div.innerHTML = `<div class="meta">${escapeHtml(m.from)} · ${timeFromTS(m.createdAt)}</div><div>${escapeHtml(m.text)}</div>`;
+        messagesEl.appendChild(div);
       });
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function timestampToTime(ts){
+    function timeFromTS(ts){
       if(!ts) return '';
-      // ts may be Firestore Timestamp object
-      try {
-        if(ts.toDate) return ts.toDate().toLocaleTimeString();
-        // maybe string
-        return new Date(ts).toLocaleTimeString();
-      } catch(e){ return ''; }
+      try { if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); }
+      catch(e){ return ''; }
     }
 
-    function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, (c)=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]) ); }
+    // ---- Profile sync ----
+    function syncProfileForm(){
+      if(!currentUser) return;
+      profileEmail.value = currentUser.email || '';
+      profileName.value = currentUser.name || '';
+      profileLogin.value = currentUser.login || '$' + (currentUser.email.split('@')[0].slice(0,8));
+      profileAbout.value = currentUser.about || '';
+    }
 
-    // ====== Event handlers UI ======
-    hambBtn.addEventListener('click', ()=> { if(drawer.classList.contains('open')) closeDrawer(); else openDrawer(); });
-
-    newChatBtn.addEventListener('click', async ()=> {
-      const phone = prompt('Введите телефон для нового чата (например +7...)');
-      if(!phone) return;
-      await createChatWith(phone);
-    });
-
-    sendBtn.addEventListener('click', ()=> {
-      const text = messageInput.value.trim();
-      if(!text) return;
-      sendMessage(text);
-      messageInput.value = '';
-    });
-
-    messageInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter'){ sendBtn.click(); } });
-
-    // Profile save
-    saveProfile.addEventListener('click', async ()=> {
+    saveProfile.addEventListener('click', async () => {
       if(!currentUser) return showToast('Сначала войдите');
-      const name = profileName.value.trim();
-      const login = profileLogin.value.trim();
-      const about = profileAbout.value.trim();
+      const name = (profileName.value || '').trim();
+      const login = (profileLogin.value || '').trim();
+      const about = (profileAbout.value || '').trim();
       if(!login.startsWith('$')) return showToast('Логин должен начинаться с $');
-      if(about.length > 100) return showToast('Описание не должно превышать 100 символов');
+      if(about.length > 100) return showToast('Описание слишком длинное');
 
-      const userRef = doc(db, 'users', currentUser.uid);
+      const uRef = doc(db, 'users', currentUser.uid);
       try {
-        await setDoc(userRef, { name, login, about, updatedAt: serverTimestamp() }, { merge: true });
-        // update local
+        await setDoc(uRef, { name, login, about, updatedAt: serverTimestamp() }, { merge: true });
         currentUser.name = name; currentUser.login = login; currentUser.about = about;
         syncProfileForm();
         renderUserBadge();
         showToast('Профиль сохранён');
-        closeDrawer();
-      } catch (err) {
-        console.error('saveProfile error', err);
-        showToast('Ошибка сохранения: ' + (err.message || err));
+        drawer.classList.remove('open');
+      } catch(err){
+        console.error('saveProfile', err);
+        showToast('Ошибка сохранения профиля');
       }
     });
 
-    logoutBtn.addEventListener('click', async ()=> {
+    logoutBtn.addEventListener('click', async () => {
       if(confirm('Выйти из аккаунта?')) {
-        try {
-          await auth.signOut();
-          currentUser = null;
-          renderUserBadge();
-          openLogin();
-        } catch(err){
-          console.error('signOut error', err);
-          showToast('Ошибка выхода');
-        }
+        try { await signOut(auth); localStorage.removeItem('emailForSignIn'); showToast('Выход выполнен'); }
+        catch(e){ console.error('signOut', e); showToast('Ошибка выхода'); }
       }
     });
 
-    // Sync profile form with currentUser
-    function syncProfileForm(){
-      if(!currentUser){ profilePhone.value=''; profileName.value=''; profileLogin.value=''; profileAbout.value=''; return; }
-      profilePhone.value = currentUser.phone || '';
-      profileName.value = currentUser.name || '';
-      profileLogin.value = currentUser.login || ('$'+(currentUser.phone.replace(/\D/g,'').slice(-4)));
-      profileAbout.value = currentUser.about || '';
-    }
+    menuBtn.addEventListener('click', ()=> drawer.classList.toggle('open'));
 
-    // ====== Utility: getDocs with try/catch (used when querying existing chats) ======
-    async function getDocsSafe(q){
-      try {
-        const snap = await (async () => {
-          // onSnapshot returns unsubscribe; but for one-time reads use getDocs
-          // We import getDocs? Not imported at top — use dynamic import:
-          const m = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
-          return await m.getDocs(q);
-        })();
-        return snap;
-      } catch (err) {
-        console.error('getDocsSafe error', err);
-        return { forEach: ()=>{} };
-      }
-    }
-
-    // ====== On load ======
-    // If user already logged in, onAuthStateChanged will populate and start listeners
-    window.addEventListener('load', () => {
-      // initialize recaptcha container (but render when sending)
-      initRecaptcha();
-      // show login if not authed; onAuthStateChanged will handle state
+    newBtnM.addEventListener('click', async ()=> {
+      const email = prompt('Введите email контакта (например friend@example.com)');
+      if(!email) return;
+      await createOrOpenChatWith(email.trim());
     });
 
-    // Expose some helpers for debugging (console)
+    sendMsg.addEventListener('click', ()=> {
+      const text = (msgInput.value||'').trim();
+      if(!text) return;
+      sendMessage(text);
+      msgInput.value = '';
+    });
+
+    msgInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter') sendMsg.click(); });
+
+    // ---- On load: show login overlay by default; onAuthStateChanged will hide it if authed ----
+    window.addEventListener('load', ()=> {
+      loginOverlay.style.display = 'flex';
+    });
+
+    // ---- Expose debug helpers (console) ----
     window.$TalkDebug = {
-      auth, db, getCurrentUser: ()=> currentUser, openChatById, createChatWith
+      auth, db, currentUser: ()=> currentUser, openChat, createOrOpenChatWith
     };
+
+    // End of module
   </script>
 </body>
-  </html>
+</html>
