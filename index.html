@@ -3,24 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>$Talk — мобильный (Email+Password)</title>
+  <title>$Talk — Email/Password (mobile)</title>
   <meta name="theme-color" content="#1e90ff">
   <style>
+    /* ---- Mobile-first styles (compact, readable) ---- */
     :root{
-      --primary:#1e90ff;
-      --accent:#00c853;
-      --bg:#fff;
-      --text:#222;
-      --muted:#666;
-      --user-bubble:#e6f0ff;
-      --other-bubble:#f2f2f2;
+      --primary:#1e90ff; --bg:#fff; --text:#222; --muted:#777;
+      --user-bubble:#e6f0ff; --other-bubble:#f2f2f2;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial,sans-serif;color:var(--text)}
     .app{height:100vh;display:flex;flex-direction:column}
-    header{display:flex;align-items:center;gap:12px;padding:12px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:#fff}
+    header{display:flex;align-items:center;padding:12px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white}
     .menu-btn{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .title{font-weight:700}
+    .title{font-weight:700;margin-left:10px}
     main{flex:1;display:flex;flex-direction:column;overflow:hidden}
     .top-controls{display:flex;gap:8px;padding:10px;background:#fff;border-bottom:1px solid #eee}
     .chats-list{display:flex;flex-direction:column;gap:8px;padding:10px;overflow:auto}
@@ -67,6 +63,7 @@
     </header>
 
     <main>
+      <!-- left column (desktop) -->
       <div class="left-col" id="leftCol" style="display:none">
         <div class="top-controls">
           <input id="search" placeholder="Поиск..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #eee" />
@@ -75,11 +72,13 @@
         <div class="chats-list" id="chatsList"></div>
       </div>
 
+      <!-- mobile top controls -->
       <div class="top-controls" id="topControlsMobile" style="display:flex">
-        <input id="searchMobile" placeholder="Поиск контактов..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #eee" />
+        <input id="searchMobile" placeholder="Поиск..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #eee" />
         <button id="newBtnM" class="btn ghost">Новый</button>
       </div>
 
+      <!-- chat panel -->
       <div class="right-col chat-area" style="flex:1;display:flex;flex-direction:column">
         <div class="messages" id="messages">
           <div class="center muted">Выберите чат или создайте новый</div>
@@ -96,30 +95,14 @@
   <!-- Drawer: профиль -->
   <div id="drawer" class="drawer">
     <h3>Профиль</h3>
-    <div class="field">
-      <label>Email</label>
-      <input id="profileEmail" disabled />
-    </div>
-    <div class="field">
-      <label>Имя</label>
-      <input id="profileName" maxlength="30" placeholder="Например: Ali" />
-    </div>
-    <div class="field">
-      <label>Логин (начинается с $)</label>
-      <input id="profileLogin" placeholder="$Ali" />
-      <div class="muted" style="font-size:12px">Логин должен начинаться с $</div>
-    </div>
-    <div class="field">
-      <label>О себе (до 100 символов)</label>
-      <textarea id="profileAbout" maxlength="100" rows="3" placeholder="Расскажи о себе"></textarea>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button id="saveProfile" class="btn">Сохранить</button>
-      <button id="logoutBtn" class="btn ghost">Выйти</button>
-    </div>
+    <div class="field"><label>Email</label><input id="profileEmail" disabled /></div>
+    <div class="field"><label>Имя</label><input id="profileName" maxlength="30" placeholder="Например: Ali" /></div>
+    <div class="field"><label>Логин (начинается с $)</label><input id="profileLogin" placeholder="$Ali" /><div class="muted" style="font-size:12px">Логин должен начинаться с $</div></div>
+    <div class="field"><label>О себе (до 100 символов)</label><textarea id="profileAbout" maxlength="100" rows="3" placeholder="Коротко о себе"></textarea></div>
+    <div style="display:flex;gap:8px"><button id="saveProfile" class="btn">Сохранить</button><button id="logoutBtn" class="btn ghost">Выйти</button></div>
   </div>
 
-  <!-- Login overlay (compat simple) -->
+  <!-- Login overlay: отдельные кнопки Login / Register -->
   <div id="loginOverlay" class="overlay">
     <div class="card">
       <div style="display:flex;align-items:center;margin-bottom:8px">
@@ -130,321 +113,339 @@
         </div>
       </div>
 
-      <div class="field">
-        <label>Email</label>
-        <input id="loginEmail" type="email" placeholder="you@example.com" />
-      </div>
-      <div class="field">
-        <label>Пароль</label>
-        <input id="loginPass" type="password" placeholder="Пароль (6+ символов)" />
-      </div>
-      <button id="loginBtn" class="btn" style="width:100%">Войти / Зарегистрироваться</button>
-      <div style="margin-top:8px" class="muted center">Если аккаунта нет — он будет создан автоматически</div>
+      <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com" /></div>
+      <div class="field"><label>Пароль</label><input id="loginPass" type="password" placeholder="Пароль (6+ символов)" /></div>
+      <button id="loginBtn" class="btn" style="width:100%;margin-bottom:8px">Войти</button>
+      <button id="registerBtn" class="btn ghost" style="width:100%">Зарегистрироваться</button>
+      <div style="margin-top:10px" class="muted center">При регистрации будет создан профиль в базе</div>
     </div>
   </div>
 
-  <!-- Firebase compat SDKs (reliable on mobile browsers) -->
+  <!-- Firebase compat SDKs (work on mobile browsers reliably) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
   <script>
-    /*********************************************************
-     * $Talk — compat version (mobile friendly)
-     * - Email + Password auth (create user if missing)
-     * - Firestore: users, chats, messages
-     * - Uses firebase compat SDK to avoid module/import issues
-     *********************************************************/
+  /* =========================================================
+     $Talk — single-file (compat) implementation
+     - Separate Login and Register buttons (по твоему запросу)
+     - Email+Password auth + Firestore chats/messages
+     - Comments + console logging for debugging
+     ========================================================= */
 
-    // ====== FIREBASE CONFIG (use the config you sent) ======
-    const firebaseConfig = {
-      apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
-      authDomain: "talk-f1ff9.firebaseapp.com",
-      databaseURL: "https://talk-f1ff9-default-rtdb.firebaseio.com",
-      projectId: "talk-f1ff9",
-      storageBucket: "talk-f1ff9.firebasestorage.app",
-      messagingSenderId: "856136352939",
-      appId: "1:856136352939:web:87c28128d4951f909f63ee",
-      measurementId: "G-3KDE4QT7PF"
-    };
+  // ----------------- Firebase config -----------------
+  // Конфиг тот, что ты присылал — оставил здесь.
+  const firebaseConfig = {
+    apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
+    authDomain: "talk-f1ff9.firebaseapp.com",
+    databaseURL: "https://talk-f1ff9-default-rtdb.firebaseio.com",
+    projectId: "talk-f1ff9",
+    storageBucket: "talk-f1ff9.firebasestorage.app",
+    messagingSenderId: "856136352939",
+    appId: "1:856136352939:web:87c28128d4951f909f63ee",
+    measurementId: "G-3KDE4QT7PF"
+  };
 
-    // init
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const FieldValue = firebase.firestore.FieldValue;
+  // init firebase (compat)
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const FieldValue = firebase.firestore.FieldValue;
 
-    // DOM
-    const loginOverlay = document.getElementById('loginOverlay');
-    const loginEmail = document.getElementById('loginEmail');
-    const loginPass = document.getElementById('loginPass');
-    const loginBtn = document.getElementById('loginBtn');
+  // ----------------- DOM refs -----------------
+  const loginOverlay = document.getElementById('loginOverlay');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPass = document.getElementById('loginPass');
+  const loginBtn = document.getElementById('loginBtn');
+  const registerBtn = document.getElementById('registerBtn');
 
-    const menuBtn = document.getElementById('menuBtn');
-    const drawer = document.getElementById('drawer');
-    const profileEmail = document.getElementById('profileEmail');
-    const profileName = document.getElementById('profileName');
-    const profileLogin = document.getElementById('profileLogin');
-    const profileAbout = document.getElementById('profileAbout');
-    const saveProfile = document.getElementById('saveProfile');
-    const logoutBtn = document.getElementById('logoutBtn');
+  const menuBtn = document.getElementById('menuBtn');
+  const drawer = document.getElementById('drawer');
+  const profileEmail = document.getElementById('profileEmail');
+  const profileName = document.getElementById('profileName');
+  const profileLogin = document.getElementById('profileLogin');
+  const profileAbout = document.getElementById('profileAbout');
+  const saveProfile = document.getElementById('saveProfile');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-    const chatsList = document.getElementById('chatsList');
-    const newBtnM = document.getElementById('newBtnM');
-    const messagesEl = document.getElementById('messages');
-    const msgInput = document.getElementById('msgInput');
-    const sendMsgBtn = document.getElementById('sendMsg');
-    const badge = document.getElementById('badge');
+  const chatsList = document.getElementById('chatsList');
+  const newBtnM = document.getElementById('newBtnM');
+  const messagesEl = document.getElementById('messages');
+  const msgInput = document.getElementById('msgInput');
+  const sendMsgBtn = document.getElementById('sendMsg');
+  const badge = document.getElementById('badge');
 
-    // state
-    let currentUser = null;    // firebase.User
-    let currentProfile = null; // profile doc data
-    let chatsUnsub = null;
-    let msgsUnsub = null;
-    let activeChatId = null;
+  // ----------------- State -----------------
+  let currentUser = null;
+  let currentProfile = null;
+  let chatsUnsub = null;
+  let msgsUnsub = null;
+  let activeChatId = null;
 
-    const esc = s => (s||'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
-    function timeFromTS(ts){
-      if(!ts) return '';
-      try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); }catch(e){return'';}
+  // ----------------- Small helpers -----------------
+  const esc = s => (s||'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+  function timeFromTS(ts){
+    if(!ts) return '';
+    try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); }catch(e){ return ''; }
+  }
+  const toast = (t) => { alert(t); console.log('TOAST:', t); };
+
+  // ----------------- AUTH: login (existing user) -----------------
+  loginBtn.addEventListener('click', async () => {
+    const email = (loginEmail.value||'').trim();
+    const pass = (loginPass.value||'').trim();
+    if(!email || !pass){ toast('Введите email и пароль'); return; }
+    try {
+      await auth.signInWithEmailAndPassword(email, pass);
+      // success: onAuthStateChanged will handle UI
+    } catch(err){
+      console.error('signIn error', err);
+      // show exact firebase error to user
+      if(err.code) toast(err.code + ' — ' + err.message);
+      else toast('Ошибка входа');
     }
-    const toast = t => alert(t);
+  });
 
-    // ---------- Auth: login / auto-register ----------
-    loginBtn.addEventListener('click', async () => {
-      const email = (loginEmail.value||'').trim();
-      const pass = (loginPass.value||'').trim();
-      if(!email || !pass){ toast('Введите email и пароль'); return; }
-      if(pass.length < 6){ toast('Пароль должен быть 6+ символов'); return; }
-
-      try {
-        await auth.signInWithEmailAndPassword(email, pass);
-        // onAuthStateChanged will run
-      } catch(err) {
-        console.error('signIn error', err);
-        // If user not found -> create
-        if(err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-          try {
-            const reg = await auth.createUserWithEmailAndPassword(email, pass);
-            // create minimal profile doc
-            await db.collection('users').doc(reg.user.uid).set({
-              email: reg.user.email,
-              name: '',
-              login: '$' + (reg.user.email.split('@')[0].slice(0,8)),
-              about: '',
-              createdAt: FieldValue.serverTimestamp()
-            }, { merge: true });
-            toast('Аккаунт создан и вы вошли');
-          } catch(e2){
-            console.error('create user error', e2);
-            toast('Ошибка регистрации: ' + (e2.message || e2.code || ''));
-          }
-        } else {
-          toast('Ошибка входа: ' + (err.message || err.code || ''));
-        }
-      }
-    });
-
-    // ---------- Auth state ----------
-    auth.onAuthStateChanged(async user => {
-      if(user){
-        currentUser = user;
-        loginOverlay.style.display = 'none';
-        await loadProfile();
-        startChatsListener();
-        renderBadge();
-      } else {
-        currentUser = null;
-        currentProfile = null;
-        stopAllListeners();
-        clearUI();
-        loginOverlay.style.display = 'flex';
-      }
-    });
-
-    // ---------- load profile ----------
-    async function loadProfile(){
-      if(!currentUser) return;
-      try {
-        const docRef = db.collection('users').doc(currentUser.uid);
-        const snap = await docRef.get();
-        if(snap.exists){
-          currentProfile = snap.data();
-        } else {
-          const base = {
-            email: currentUser.email,
-            name: '',
-            login: '$' + (currentUser.email.split('@')[0].slice(0,8)),
-            about: '',
-            createdAt: FieldValue.serverTimestamp()
-          };
-          await docRef.set(base, { merge: true });
-          currentProfile = base;
-        }
-        profileEmail.value = currentProfile.email || currentUser.email;
-        profileName.value = currentProfile.name || '';
-        profileLogin.value = currentProfile.login || ('$' + (currentUser.email.split('@')[0].slice(0,8)));
-        profileAbout.value = currentProfile.about || '';
-        renderBadge();
-      } catch(e){ console.error('loadProfile', e); toast('Ошибка загрузки профиля'); }
+  // ----------------- AUTH: register (new user) -----------------
+  registerBtn.addEventListener('click', async () => {
+    const email = (loginEmail.value||'').trim();
+    const pass = (loginPass.value||'').trim();
+    if(!email || !pass){ toast('Введите email и пароль'); return; }
+    if(pass.length < 6){ toast('Пароль должен быть минимум 6 символов'); return; }
+    try {
+      const reg = await auth.createUserWithEmailAndPassword(email, pass);
+      // create minimal profile doc
+      await db.collection('users').doc(reg.user.uid).set({
+        email: reg.user.email,
+        name: '',
+        login: '$' + (reg.user.email.split('@')[0].slice(0,8)),
+        about: '',
+        createdAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+      toast('Аккаунт создан — вы вошли');
+    } catch(err){
+      console.error('register error', err);
+      if(err.code) toast(err.code + ' — ' + err.message);
+      else toast('Ошибка регистрации');
     }
+  });
 
-    // ---------- save profile ----------
-    saveProfile.addEventListener('click', async () => {
-      if(!currentUser) return toast('Сначала войдите');
-      const name = (profileName.value||'').trim();
-      const login = (profileLogin.value||'').trim();
-      const about = (profileAbout.value||'').trim();
-      if(!login.startsWith('$')) return toast('Логин должен начинаться с $');
-      if(about.length > 100) return toast('Описание не должно превышать 100 символов');
-      try {
-        await db.collection('users').doc(currentUser.uid).set({
-          name, login, about, email: currentUser.email, updatedAt: FieldValue.serverTimestamp()
-        }, { merge: true });
-        currentProfile = { ...currentProfile, name, login, about };
-        toast('Профиль сохранён');
-        drawer.classList.remove('open');
-        renderBadge();
-      } catch(err){ console.error('saveProfile', err); toast('Ошибка сохранения'); }
-    });
-
-    // ---------- chats listener ----------
-    function startChatsListener(){
-      if(!currentProfile || !currentProfile.email) return;
-      if(chatsUnsub) chatsUnsub();
-
-      const chatsRef = db.collection('chats');
-      const q = chatsRef.where('participants','array-contains', currentProfile.email).orderBy('updatedAt','desc');
-
-      chatsUnsub = q.onSnapshot(snapshot => {
-        const arr = [];
-        snapshot.forEach(d => arr.push({ id: d.id, ...d.data() }));
-        renderChats(arr);
-      }, err => {
-        console.error('chats onSnapshot', err);
-        toast('Ошибка получения списка чатов');
-      });
-    }
-
-    function renderChats(chats){
-      chatsList.innerHTML = '';
-      if(!chats.length){ chatsList.innerHTML = '<div class="muted" style="padding:12px">Нет чатов — нажмите «Новый»</div>'; return; }
-      chats.forEach(c => {
-        const other = (c.participants||[]).find(p => p !== currentProfile.email) || 'Неизвестный';
-        const el = document.createElement('div');
-        el.className = 'chat-item';
-        el.innerHTML = `<div class="ava">${esc(other.slice(0,2)).toUpperCase()}</div>
-                        <div class="chat-meta"><div class="chat-name">${esc(other)}</div><div class="chat-last">${esc(c.lastMessage||'')}</div></div>
-                        <div class="muted" style="font-size:12px">${timeFromTS(c.updatedAt)}</div>`;
-        el.onclick = () => openChat(c.id);
-        chatsList.appendChild(el);
-      });
-    }
-
-    // ---------- create/open chat ----------
-    async function createOrOpenChatWith(email){
-      if(!currentProfile) return toast('Сначала войдите');
-      email = (email||'').trim();
-      if(!email) return;
-      try {
-        // find existing
-        const q = db.collection('chats').where('participants','array-contains', currentProfile.email);
-        const snap = await q.get();
-        let found = null;
-        snap.forEach(d => {
-          const data = d.data();
-          if(Array.isArray(data.participants) && data.participants.includes(email)) found = { id: d.id, ...data };
-        });
-        if(found){ openChat(found.id); return; }
-
-        // create new
-        const newRef = await db.collection('chats').add({
-          participants: [ currentProfile.email, email ],
-          lastMessage: '',
-          updatedAt: FieldValue.serverTimestamp()
-        });
-        openChat(newRef.id);
-      } catch(err){ console.error('createOrOpenChat', err); toast('Ошибка создания чата'); }
-    }
-
-    // ---------- open chat & listen messages ----------
-    function openChat(chatId){
-      activeChatId = chatId;
-      if(msgsUnsub) msgsUnsub();
-      const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
-      msgsUnsub = msgsRef.onSnapshot(snapshot => {
-        const arr = [];
-        snapshot.forEach(d => arr.push({ id: d.id, ...d.data() }));
-        renderMessages(arr);
-      }, err => { console.error('messages onSnapshot', err); toast('Ошибка получения сообщений'); });
-    }
-
-    function renderMessages(msgs){
-      messagesEl.innerHTML = '';
-      if(!msgs.length){ messagesEl.innerHTML = '<div class="center muted">Чат пуст</div>'; return; }
-      msgs.forEach(m => {
-        const div = document.createElement('div');
-        div.className = (m.from === currentProfile.email) ? 'msg me' : 'msg you';
-        div.innerHTML = `<div class="meta">${esc(m.from)} · ${timeFromTS(m.createdAt)}</div><div>${esc(m.text)}</div>`;
-        messagesEl.appendChild(div);
-      });
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    // ---------- send message ----------
-    sendMsgBtn.addEventListener('click', async () => {
-      const text = (msgInput.value||'').trim();
-      if(!text) return;
-      if(!activeChatId) return toast('Откройте чат');
-      try {
-        await db.collection('chats').doc(activeChatId).collection('messages').add({
-          from: currentProfile.email,
-          text,
-          createdAt: FieldValue.serverTimestamp()
-        });
-        await db.collection('chats').doc(activeChatId).set({ lastMessage: text, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-        msgInput.value = '';
-      } catch(err){ console.error('send message', err); toast('Ошибка отправки'); }
-    });
-
-    // ---------- UI actions ----------
-    menuBtn.addEventListener('click', () => drawer.classList.toggle('open'));
-    newBtnM.addEventListener('click', async () => {
-      const email = prompt('Введите email контакта (например friend@example.com)');
-      if(email) createOrOpenChatWith(email.trim());
-    });
-    logoutBtn.addEventListener('click', async () => {
-      if(confirm('Выйти из аккаунта?')) {
-        try { await auth.signOut(); } catch(e){ console.error('signOut', e); toast('Ошибка выхода'); }
-      }
-    });
-
-    // ---------- utilities ----------
-    function stopAllListeners(){
-      if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
-      if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
-      activeChatId = null;
-    }
-    function clearUI(){
-      chatsList.innerHTML = '';
-      messagesEl.innerHTML = '<div class="center muted">Выберите чат или создайте новый</div>';
-      profileEmail.value = ''; profileName.value=''; profileLogin.value=''; profileAbout.value='';
-      badge.textContent = '';
-    }
-    function renderBadge(){ badge.textContent = currentProfile ? (currentProfile.name || currentProfile.email) : ''; }
-
-    // ---------- initial ----------
-    window.addEventListener('load', () => {
+  // ----------------- Auth state listener -----------------
+  auth.onAuthStateChanged(async user => {
+    if(user){
+      currentUser = user;
+      loginOverlay.style.display = 'none';
+      await loadProfile();
+      startChatsListener();
+      renderBadge();
+      console.log('User logged in:', user.email);
+    } else {
+      currentUser = null;
+      currentProfile = null;
+      stopAllListeners();
+      clearUI();
       loginOverlay.style.display = 'flex';
-      console.log('$Talk loaded — ready');
-    });
+      console.log('No user');
+    }
+  });
 
-    // expose debug helpers
-    window.$TalkDebug = {
-      auth, db,
-      getCurrentProfile: () => currentProfile,
-      openChat, createOrOpenChatWith
-    };
+  // ----------------- Load or create profile -----------------
+  async function loadProfile(){
+    if(!currentUser) return;
+    try {
+      const docRef = db.collection('users').doc(currentUser.uid);
+      const snap = await docRef.get();
+      if(snap.exists){
+        currentProfile = snap.data();
+      } else {
+        const base = {
+          email: currentUser.email,
+          name: '',
+          login: '$' + (currentUser.email.split('@')[0].slice(0,8)),
+          about: '',
+          createdAt: FieldValue.serverTimestamp()
+        };
+        await docRef.set(base, { merge: true });
+        currentProfile = base;
+      }
+      // sync UI
+      profileEmail.value = currentProfile.email || currentUser.email;
+      profileName.value = currentProfile.name || '';
+      profileLogin.value = currentProfile.login || ('$' + (currentUser.email.split('@')[0].slice(0,8)));
+      profileAbout.value = currentProfile.about || '';
+      renderBadge();
+    } catch(e){
+      console.error('loadProfile error', e);
+      toast('Ошибка загрузки профиля');
+    }
+  }
+
+  // ----------------- Save profile -----------------
+  saveProfile.addEventListener('click', async () => {
+    if(!currentUser) return toast('Сначала войдите');
+    const name = (profileName.value||'').trim();
+    const login = (profileLogin.value||'').trim();
+    const about = (profileAbout.value||'').trim();
+    if(!login.startsWith('$')) return toast('Логин должен начинаться с $');
+    if(about.length > 100) return toast('Описание не должно превышать 100 символов');
+    try {
+      await db.collection('users').doc(currentUser.uid).set({
+        name, login, about, email: currentUser.email, updatedAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+      currentProfile = { ...currentProfile, name, login, about };
+      toast('Профиль сохранён');
+      drawer.classList.remove('open');
+      renderBadge();
+    } catch(err){
+      console.error('saveProfile error', err);
+      toast('Ошибка сохранения профиля');
+    }
+  });
+
+  // ----------------- Chats listener -----------------
+  function startChatsListener(){
+    if(!currentProfile || !currentProfile.email) return;
+    if(chatsUnsub) chatsUnsub();
+    const chatsRef = db.collection('chats');
+    // where + orderBy may require composite index — Firebase Console предложит ссылку если нужно
+    const q = chatsRef.where('participants','array-contains', currentProfile.email).orderBy('updatedAt','desc');
+    chatsUnsub = q.onSnapshot(snapshot => {
+      const arr = [];
+      snapshot.forEach(d => arr.push({ id: d.id, ...d.data() }));
+      renderChats(arr);
+    }, err => {
+      console.error('chats onSnapshot', err);
+      toast('Ошибка получения списка чатов');
+    });
+  }
+
+  function renderChats(chats){
+    chatsList.innerHTML = '';
+    if(!chats || !chats.length){
+      chatsList.innerHTML = '<div class="muted" style="padding:12px">Нет чатов — нажмите «Новый»</div>';
+      return;
+    }
+    chats.forEach(c => {
+      const other = (c.participants||[]).find(p => p !== currentProfile.email) || 'Неизвестный';
+      const el = document.createElement('div');
+      el.className = 'chat-item';
+      el.innerHTML = `<div class="ava">${esc(other.slice(0,2)).toUpperCase()}</div>
+                      <div class="chat-meta"><div class="chat-name">${esc(other)}</div><div class="chat-last">${esc(c.lastMessage||'')}</div></div>
+                      <div class="muted" style="font-size:12px">${timeFromTS(c.updatedAt)}</div>`;
+      el.onclick = () => openChat(c.id);
+      chatsList.appendChild(el);
+    });
+  }
+
+  // ----------------- Create or open chat by email -----------------
+  async function createOrOpenChatWith(email){
+    if(!currentProfile) return toast('Сначала войдите');
+    email = (email||'').trim();
+    if(!email) return;
+    try {
+      // search existing chats where current user participates
+      const q = db.collection('chats').where('participants','array-contains', currentProfile.email);
+      const snap = await q.get();
+      let found = null;
+      snap.forEach(d => {
+        const data = d.data();
+        if(Array.isArray(data.participants) && data.participants.includes(email)) found = { id: d.id, ...data };
+      });
+      if(found){ openChat(found.id); return; }
+      // create new chat
+      const newRef = await db.collection('chats').add({
+        participants: [ currentProfile.email, email ],
+        lastMessage: '',
+        updatedAt: FieldValue.serverTimestamp()
+      });
+      openChat(newRef.id);
+    } catch(err){
+      console.error('createOrOpenChat error', err);
+      toast('Ошибка создания чата');
+    }
+  }
+
+  // ----------------- Open chat & listen messages -----------------
+  function openChat(chatId){
+    activeChatId = chatId;
+    if(msgsUnsub) msgsUnsub();
+    const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
+    msgsUnsub = msgsRef.onSnapshot(snapshot => {
+      const arr = [];
+      snapshot.forEach(d => arr.push({ id: d.id, ...d.data() }));
+      renderMessages(arr);
+    }, err => {
+      console.error('messages onSnapshot', err);
+      toast('Ошибка получения сообщений');
+    });
+  }
+
+  function renderMessages(msgs){
+    messagesEl.innerHTML = '';
+    if(!msgs || !msgs.length){ messagesEl.innerHTML = '<div class="center muted">Чат пуст</div>'; return; }
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = (m.from === currentProfile.email) ? 'msg me' : 'msg you';
+      div.innerHTML = `<div class="meta">${esc(m.from)} · ${timeFromTS(m.createdAt)}</div><div>${esc(m.text)}</div>`;
+      messagesEl.appendChild(div);
+    });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // ----------------- Send message -----------------
+  sendMsgBtn.addEventListener('click', async () => {
+    const text = (msgInput.value||'').trim();
+    if(!text) return;
+    if(!activeChatId) return toast('Откройте чат');
+    try {
+      await db.collection('chats').doc(activeChatId).collection('messages').add({
+        from: currentProfile.email,
+        text,
+        createdAt: FieldValue.serverTimestamp()
+      });
+      await db.collection('chats').doc(activeChatId).set({ lastMessage: text, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      msgInput.value = '';
+    } catch(err){
+      console.error('send message error', err);
+      toast('Ошибка отправки сообщения');
+    }
+  });
+
+  // ----------------- UI actions -----------------
+  menuBtn.addEventListener('click', () => drawer.classList.toggle('open'));
+  newBtnM.addEventListener('click', async () => {
+    const email = prompt('Введите email контакта (например friend@example.com)');
+    if(email) createOrOpenChatWith(email.trim());
+  });
+  logoutBtn.addEventListener('click', async () => {
+    if(confirm('Выйти?')) {
+      try { await auth.signOut(); } catch(e){ console.error('signOut', e); toast('Ошибка выхода'); }
+    }
+  });
+
+  // ----------------- Utilities -----------------
+  function stopAllListeners(){
+    if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
+    if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
+    activeChatId = null;
+  }
+  function clearUI(){
+    chatsList.innerHTML = '';
+    messagesEl.innerHTML = '<div class="center muted">Выберите чат или создайте новый</div>';
+    profileEmail.value = ''; profileName.value=''; profileLogin.value=''; profileAbout.value='';
+    badge.textContent = '';
+  }
+  function renderBadge(){ badge.textContent = currentProfile ? (currentProfile.name || currentProfile.email) : ''; }
+
+  // ----------------- Start -----------------
+  window.addEventListener('load', () => {
+    loginOverlay.style.display = 'flex';
+    console.log('$Talk loaded — ready');
+  });
+
+  // expose debug helpers:
+  window.$TalkDebug = { auth, db, getProfile: ()=> currentProfile, openChat, createOrOpenChatWith };
   </script>
 </body>
 </html>
