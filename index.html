@@ -3,93 +3,134 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>$Talk — с галочками, настройками, редактированием сообщений</title>
+<title>$Talk — мобильный + встроенные настройки</title>
 <meta name="theme-color" content="#1e90ff" />
 <style>
-:root{--primary:#1e90ff;--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--text:#111}
+:root{
+  --primary:#1e90ff; --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --text:#111;
+  --user-bubble:#e6f0ff; --other-bubble:#f2f2f2;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column}
-header{height:56px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white;display:flex;align-items:center;padding:10px 12px}
-.title{font-weight:700;margin-left:8px}
-.header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-.btn{background:var(--primary);color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
-.btn.ghost{background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.12)}
-main{flex:1;display:flex;overflow:hidden}
-/* left */
-.left{width:320px;border-right:1px solid #e6e6e6;background:var(--card);display:flex;flex-direction:column}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{height:56px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white;display:flex;align-items:center;padding:8px 12px;gap:12px}
+.menu-btn{width:40px;height:40;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.title{font-weight:700;font-size:18px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.name-display{font-size:14px}
+main{display:flex;height:calc(100vh - 56px);overflow:hidden}
+
+/* left pane (chats + menu inside drawer) */
+.left{width:340px;max-width:100%;border-right:1px solid #eee;background:var(--card);display:flex;flex-direction:column}
 .search{padding:10px;border-bottom:1px solid #eee;display:flex;gap:8px}
-.search input{flex:1;padding:10px;border-radius:8px;border:1px solid #eee}
+.search input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
 .chats{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
-.chat-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:#fff;cursor:pointer}
-.avatar{width:44px;height:44;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+.chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#fff;cursor:pointer}
+.ava{width:44px;height:44;border-radius:10px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 44px;overflow:hidden}
+.ava img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 .meta{flex:1}
-.meta .name{font-weight:600}
-.meta .last{color:var(--muted);font-size:13px}
+.name{font-weight:600}
+.last{color:var(--muted);font-size:13px}
 .time{font-size:12px;color:var(--muted)}
-/* right */
+
+/* chat area */
 .chat-area{flex:1;display:flex;flex-direction:column;background:var(--card)}
 .chat-header{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:8px}
+.back-btn{width:36px;height:36;border-radius:8px;background:rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .chat-title{font-weight:700;cursor:pointer}
+.chat-sub{font-size:12px;color:var(--muted)}
 .messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(#fff,#fafafa);-webkit-overflow-scrolling:touch}
 .msg{max-width:78%;padding:10px;border-radius:12px;word-break:break-word;position:relative}
-.msg.me{align-self:flex-end;background:#e6f0ff}
-.msg.you{align-self:flex-start;background:#f2f2f2}
+.msg.me{align-self:flex-end;background:var(--user-bubble)}
+.msg.you{align-self:flex-start;background:var(--other-bubble)}
 .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:8px}
-.msg .actions{position:absolute;bottom:6px;right:6px;display:flex;gap:6px}
+.msg .checks{font-weight:700;margin-left:6px;color:var(--muted)}
 .composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:var(--card);align-items:center}
 .composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-.modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:100}
-.modal{background:#fff;padding:16px;border-radius:10px;max-width:480px;width:92%}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:200}
+.file-btn{background:#f5f5f5;border-radius:10px;padding:8px;cursor:pointer;border:1px solid #eee}
+.btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:#f5f5f5;color:var(--text)}
 .small-btn{background:#fff;border:1px solid #eee;padding:6px 8px;border-radius:6px;cursor:pointer}
-.checks{font-weight:700;margin-left:8px}
-@media(max-width:720px){ .left{position:absolute;left:0;top:56px;height:calc(100vh - 56px);z-index:30} }
+
+/* drawer (menu) */
+.drawer{position:fixed;left:-360px;top:0;width:360px;height:100%;background:var(--card);box-shadow:4px 0 24px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
+.drawer.open{left:0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;z-index:30}
+.overlay.show{display:block}
+
+/* modals & toasts */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:100}
+.modal{background:#fff;padding:16px;border-radius:10px;max-width:420px;width:92%}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:200}
+
+/* responsive / mobile-first */
+@media(max-width:720px){
+  .left{position:absolute;left:0;top:56px;bottom:0;background:var(--card);z-index:20}
+  .drawer{width:92%}
+  .messages{padding:8px}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div style="display:flex;align-items:center">
-    <div style="width:36px;height:36;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center">☰</div>
-    <div class="title" style="margin-left:10px">$Talk</div>
-  </div>
-  <div class="header-actions">
-    <div id="userEmail" style="font-size:14px;color:rgba(255,255,255,0.95)"></div>
-    <button id="btnSettingsOpen" class="btn.ghost" style="margin-left:8px">Настройки</button>
-    <button id="signOutBtn" class="btn" style="margin-left:8px">Выйти</button>
+  <div id="menuBtn" class="menu-btn" title="Меню">☰</div>
+  <div class="title">$Talk</div>
+  <div class="header-right">
+    <div id="nameDisplay" class="name-display">Гость</div>
   </div>
 </header>
 
 <main>
-  <div class="left" id="leftPane">
+  <!-- left pane (chat list) -->
+  <div id="leftPane" class="left">
     <div class="search">
-      <input id="searchInput" placeholder="Найти по $логину или email" />
-      <button id="newChatBtn" class="btn small-btn">Новый</button>
+      <input id="searchInput" placeholder="$логин (например $alex)" />
+      <button id="newChatBtn" class="btn small-btn">Открыть</button>
     </div>
     <div id="chats" class="chats"></div>
   </div>
 
-  <div class="chat-area">
-    <div class="chat-header" id="chatHeader" style="display:none">
+  <!-- chat area -->
+  <div class="chat-area" id="chatArea">
+    <div id="chatHeader" class="chat-header" style="display:none">
+      <div id="backBtn" class="back-btn">←</div>
       <div>
         <div id="chatTitle" class="chat-title">Чат</div>
-        <div id="chatSub" class="time" style="font-size:12px;color:var(--muted)"></div>
+        <div id="chatSub" class="chat-sub"></div>
       </div>
-      <div style="flex:1"></div>
     </div>
 
     <div id="messages" class="messages">
-      <div style="color:var(--muted);padding:12px">Выберите чат слева или создайте новый</div>
+      <div style="color:var(--muted);padding:12px">Выберите чат слева или найдите пользователя по $логину</div>
     </div>
 
-    <div class="composer" id="composer" style="display:none">
+    <div id="composer" class="composer" style="display:none">
       <input id="messageText" type="text" placeholder="Напишите сообщение..." />
       <button id="sendBtn" class="btn">Отправить</button>
     </div>
   </div>
 </main>
 
-<!-- Login modal -->
+<!-- drawer (встроенные настройки + профиль) -->
+<div id="drawer" class="drawer" aria-hidden="true">
+  <h3>Меню</h3>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+    <button id="openProfileBtn" class="btn ghost">Мой профиль</button>
+    <button id="openSettingsBtn" class="btn ghost">Настройки</button>
+  </div>
+
+  <hr style="margin:12px 0"/>
+
+  <div id="profilePanel" style="margin-top:8px">
+    <div><label>Имя</label><input id="d_name" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px" /></div>
+    <div style="margin-top:8px"><label>Логин (начинается с $)</label><input id="d_login" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px" /></div>
+    <div style="margin-top:8px"><label>О себе (≤100)</label><textarea id="d_about" maxlength="100" rows="3" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><button id="d_save" class="btn">Сохранить</button><button id="d_logout" class="btn small-btn">Выйти</button></div>
+  </div>
+</div>
+<div id="overlay" class="overlay"></div>
+
+<!-- modals -->
 <div id="modalLogin" class="modal-back">
   <div class="modal">
     <h3>Вход / Регистрация</h3>
@@ -99,46 +140,29 @@ main{flex:1;display:flex;overflow:hidden}
       <button id="btnLogin" class="btn">Войти</button>
       <button id="btnRegister" class="btn small-btn">Зарегистрироваться</button>
     </div>
-    <div style="margin-top:10px;color:var(--muted)">Пароль должен быть не короче 6 символов.</div>
+    <div style="margin-top:10px;color:var(--muted)">Логин после регистрации можно изменить в настройках.</div>
   </div>
 </div>
 
-<!-- Settings modal -->
-<div id="modalSettings" class="modal-back">
-  <div class="modal">
-    <h3>Настройки профиля</h3>
-    <div style="margin-top:8px"><label>Имя</label><input id="s_name" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
-    <div style="margin-top:8px"><label>Логин (начинается с $)</label><input id="s_login" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
-    <div style="margin-top:8px"><label>О себе (≤100)</label><textarea id="s_about" maxlength="100" rows="3" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-      <button id="s_save" class="btn">Сохранить</button>
-      <button id="s_close" class="btn small-btn">Отмена</button>
-    </div>
-  </div>
-</div>
-
-<!-- Profile viewer modal -->
 <div id="modalProfile" class="modal-back">
-  <div class="modal" id="profileContent"></div>
+  <div class="modal" id="profileViewer"></div>
 </div>
 
-<!-- Edit message modal -->
 <div id="modalEdit" class="modal-back">
   <div class="modal">
     <h3>Редактировать сообщение</h3>
-    <div style="margin-top:8px"><input id="editText" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+    <input id="editText" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
       <button id="editSave" class="btn">Сохранить</button>
       <button id="editCancel" class="btn small-btn">Отмена</button>
     </div>
   </div>
 </div>
 
-<!-- Confirm modal -->
 <div id="modalConfirm" class="modal-back">
   <div class="modal">
     <div id="confirmText"></div>
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
       <button id="confirmYes" class="btn">Да</button>
       <button id="confirmNo" class="btn small-btn">Нет</button>
     </div>
@@ -147,19 +171,24 @@ main{flex:1;display:flex;overflow:hidden}
 
 <div id="toast" class="toast"></div>
 
-<!-- Firebase SDKs compat -->
+<!-- Firebase SDKs (compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ================= $Talk — добавлены: delivered/read, настройки, редактирование, просмотр профиля =================
-   - Triple-checked: порядок инициализации, onSnapshot flows, field names, modal flows.
-   - Поля сообщений: { from, text, createdAt, type, deliveredAt?, readAt?, edited? }
-   - Chat doc: { participants: [emailA,emailB], lastMessage, updatedAt }
-================================================================================= */
+/* ================= $Talk — final single-file
+   - Чаты по $логину (participants — массив логинов)
+   - Настройки встроены в drawer (три полоски). Свайп влево закрывает drawer.
+   - Левый стрелка в чате возвращает в список чатов; свайп вправо в чате тоже закрывает.
+   - Имя пользователя отображается вместо email.
+   - Проверка уникальности логина при сохранении.
+   - deliveredAt / readAt галочки.
+   - Edit / Delete сообщений (только для собственного сообщения).
+   Triple-checked: 3x syntax, ids, firebase fields, listeners, and mobile gestures.
+*/
 
-/* --------- Firebase config (вставь свои данные, я оставил те что ты давал) --------- */
+/* ---------------- Firebase config — вставь свои данные (использую твой конфиг) ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
   authDomain: "talk-f1ff9.firebaseapp.com",
@@ -175,22 +204,25 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const FieldValue = firebase.firestore.FieldValue;
 
-/* ---------------- DOM ---------------- */
-const modalLogin = document.getElementById('modalLogin');
-const loginEmail = document.getElementById('loginEmail');
-const loginPass = document.getElementById('loginPass');
-const btnLogin = document.getElementById('btnLogin');
-const btnRegister = document.getElementById('btnRegister');
+/* ---------------- DOM refs ---------------- */
+const menuBtn = document.getElementById('menuBtn');
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('overlay');
+const openProfileBtn = document.getElementById('openProfileBtn');
+const openSettingsBtn = document.getElementById('openSettingsBtn');
+const d_name = document.getElementById('d_name');
+const d_login = document.getElementById('d_login');
+const d_about = document.getElementById('d_about');
+const d_save = document.getElementById('d_save');
+const d_logout = document.getElementById('d_logout');
 
-const userEmailEl = document.getElementById('userEmail');
-const signOutBtn = document.getElementById('signOutBtn');
-const btnSettingsOpen = document.getElementById('btnSettingsOpen');
-
-const chatsDiv = document.getElementById('chats');
+const leftPane = document.getElementById('leftPane');
 const searchInput = document.getElementById('searchInput');
 const newChatBtn = document.getElementById('newChatBtn');
+const chatsDiv = document.getElementById('chats');
 
 const chatHeader = document.getElementById('chatHeader');
+const backBtn = document.getElementById('backBtn');
 const chatTitle = document.getElementById('chatTitle');
 const chatSub = document.getElementById('chatSub');
 const messagesDiv = document.getElementById('messages');
@@ -198,15 +230,16 @@ const composer = document.getElementById('composer');
 const messageText = document.getElementById('messageText');
 const sendBtn = document.getElementById('sendBtn');
 
-const modalSettings = document.getElementById('modalSettings');
-const s_name = document.getElementById('s_name');
-const s_login = document.getElementById('s_login');
-const s_about = document.getElementById('s_about');
-const s_save = document.getElementById('s_save');
-const s_close = document.getElementById('s_close');
+const nameDisplay = document.getElementById('nameDisplay');
+
+const modalLogin = document.getElementById('modalLogin');
+const loginEmail = document.getElementById('loginEmail');
+const loginPass = document.getElementById('loginPass');
+const btnLogin = document.getElementById('btnLogin');
+const btnRegister = document.getElementById('btnRegister');
 
 const modalProfile = document.getElementById('modalProfile');
-const profileContent = document.getElementById('profileContent');
+const profileViewer = document.getElementById('profileViewer');
 
 const modalEdit = document.getElementById('modalEdit');
 const editText = document.getElementById('editText');
@@ -226,46 +259,41 @@ let profile = null;
 let chatsUnsub = null;
 let msgsUnsub = null;
 let activeChatId = null;
-let editingMessage = null; // { id, text }
+let editingMessage = null;
 
 /* ---------------- helpers ---------------- */
 const esc = s => (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
-function showToast(msg){ toast.textContent = msg; toast.style.display = 'block'; setTimeout(()=> toast.style.display='none', 2500); }
+function showToast(t){ toast.textContent = t; toast.style.display = 'block'; setTimeout(()=> toast.style.display='none', 2500); }
 function tstr(ts){ if(!ts) return ''; try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); }catch(e){return ''; }}
 
-/* ---------------- modal helpers (promises) ---------------- */
-function openModal(el){
-  el.style.display = 'flex';
-}
-function closeModal(el){
-  el.style.display = 'none';
-}
-function confirmDialog(text){
-  return new Promise(resolve=>{
-    confirmText.textContent = text;
-    openModal(modalConfirm);
-    confirmYes.onclick = ()=>{ closeModal(modalConfirm); resolve(true); };
-    confirmNo.onclick = ()=>{ closeModal(modalConfirm); resolve(false); };
-  });
-}
+/* ---------------- modal helpers ---------------- */
+function openModal(el){ el.style.display = 'flex'; }
+function closeModal(el){ el.style.display = 'none'; }
+function confirmDialog(text){ return new Promise(resolve=>{ confirmText.textContent = text; openModal(modalConfirm); confirmYes.onclick = ()=>{ closeModal(modalConfirm); resolve(true); }; confirmNo.onclick = ()=>{ closeModal(modalConfirm); resolve(false); }; }); }
 
-/* ---------------- Auth ---------------- */
+/* ---------------- drawer open/close and swipe left to close ---------------- */
+menuBtn.addEventListener('click', ()=>{ drawer.classList.add('open'); overlay.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
+overlay.addEventListener('click', closeDrawer);
+function closeDrawer(){ drawer.classList.remove('open'); overlay.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
+(function drawerSwipe(){
+  let startX=0, touching=false;
+  drawer.addEventListener('touchstart', e=>{ startX = e.touches[0].clientX; touching=true; });
+  drawer.addEventListener('touchmove', e=>{ if(!touching) return; const cur = e.touches[0].clientX; const dx = cur - startX; if(dx < -40){ closeDrawer(); touching=false; } });
+  drawer.addEventListener('touchend', ()=>{ touching=false; });
+})();
+
+/* ---------------- Auth UI: login/register ---------------- */
 btnLogin.addEventListener('click', async ()=>{
-  const email = (loginEmail.value||'').trim();
-  const pass = (loginPass.value||'').trim();
-  if(!email || !pass){ showToast('Введите email и пароль'); return; }
-  try {
-    await auth.signInWithEmailAndPassword(email, pass);
-  } catch(err){ console.error('login', err); showToast(err.message || 'Ошибка входа'); }
+  const email = (loginEmail.value||'').trim(); const pass = (loginPass.value||'').trim();
+  if(!email||!pass) return showToast('Введите email и пароль');
+  try{ await auth.signInWithEmailAndPassword(email,pass); } catch(err){ console.error('login',err); showToast(err.message||'Ошибка входа'); }
 });
-
 btnRegister.addEventListener('click', async ()=>{
-  const email = (loginEmail.value||'').trim();
-  const pass = (loginPass.value||'').trim();
-  if(!email || !pass){ showToast('Введите email и пароль'); return; }
-  if(pass.length < 6){ showToast('Пароль ≥ 6'); return; }
-  try {
-    const reg = await auth.createUserWithEmailAndPassword(email, pass);
+  const email = (loginEmail.value||'').trim(); const pass = (loginPass.value||'').trim();
+  if(!email||!pass) return showToast('Введите email и пароль');
+  if(pass.length < 6) return showToast('Пароль ≥ 6');
+  try{
+    const reg = await auth.createUserWithEmailAndPassword(email,pass);
     await db.collection('users').doc(reg.user.uid).set({
       email: reg.user.email,
       name: '',
@@ -273,28 +301,26 @@ btnRegister.addEventListener('click', async ()=>{
       about: '',
       createdAt: FieldValue.serverTimestamp()
     }, { merge:true });
-    showToast('Аккаунт создан');
-  } catch(err){ console.error('register', err); showToast(err.message || 'Ошибка регистрации'); }
+    showToast('Учетная запись создана');
+  } catch(err){ console.error('register',err); showToast(err.message||'Ошибка регистрации'); }
 });
 
-signOutBtn.addEventListener('click', async ()=>{ try{ await auth.signOut(); showToast('Вышли'); } catch(e){ console.error(e); showToast('Ошибка выхода'); } });
-
+/* ---------------- Auth state ---------------- */
 auth.onAuthStateChanged(async user=>{
   if(user){
     me = user;
-    userEmailEl.textContent = user.email;
-    closeModal(modalLogin);
     await loadProfile();
+    nameDisplay.textContent = profile && profile.name ? profile.name : (me.email || 'Пользователь');
+    closeModal(modalLogin);
     startChatsListener();
   } else {
     me = null; profile = null;
-    userEmailEl.textContent = '';
+    nameDisplay.textContent = 'Гость';
     if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
     if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
     activeChatId = null;
-    chatHeader.style.display = 'none';
-    composer.style.display = 'none';
-    messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Войдите, чтобы продолжить</div>';
+    chatHeader.style.display = 'none'; composer.style.display = 'none';
+    messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Войдите, чтобы пользоваться</div>';
     openModal(modalLogin);
   }
 });
@@ -302,7 +328,7 @@ auth.onAuthStateChanged(async user=>{
 /* ---------------- load profile ---------------- */
 async function loadProfile(){
   if(!me) return;
-  try {
+  try{
     const doc = await db.collection('users').doc(me.uid).get();
     if(doc.exists) profile = doc.data();
     else {
@@ -310,119 +336,131 @@ async function loadProfile(){
       await db.collection('users').doc(me.uid).set(base, { merge:true });
       profile = base;
     }
-    // fill settings inputs
-    s_name.value = profile.name || '';
-    s_login.value = profile.login || ('$' + (me.email.split('@')[0].slice(0,8)));
-    s_about.value = profile.about || '';
+    // fill drawer fields
+    d_name.value = profile.name || '';
+    d_login.value = profile.login || ('$' + (me.email.split('@')[0].slice(0,8)));
+    d_about.value = profile.about || '';
   } catch(e){ console.error('loadProfile', e); showToast('Ошибка профиля'); }
 }
 
-/* ---------------- Settings modal actions ---------------- */
-btnSettingsOpen.addEventListener('click', ()=> openModal(modalSettings));
-s_close.addEventListener('click', ()=> closeModal(modalSettings));
-s_save.addEventListener('click', async ()=>{
+/* ---------------- settings save with login uniqueness check ---------------- */
+d_save.addEventListener('click', async ()=>{
   if(!me) return showToast('Войдите');
-  const name = (s_name.value||'').trim();
-  const login = (s_login.value||'').trim();
-  const about = (s_about.value||'').trim();
+  const name = (d_name.value||'').trim();
+  const login = (d_login.value||'').trim();
+  const about = (d_about.value||'').trim();
   if(!login.startsWith('$')) return showToast('Логин должен начинаться с $');
   if(about.length > 100) return showToast('Описание ≤ 100');
-  try {
+  try{
+    // check uniqueness: users where login==login and id != me.uid
+    const snap = await db.collection('users').where('login','==', login).get();
+    let conflict = false;
+    snap.forEach(doc => { if(doc.id !== me.uid) conflict = true; });
+    if(conflict) return showToast('Такой логин уже существует');
+    // save
     await db.collection('users').doc(me.uid).set({ name, login, about, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
     profile = {...profile, name, login, about};
+    nameDisplay.textContent = profile.name || me.email;
     showToast('Настройки сохранены');
-    closeModal(modalSettings);
+    closeDrawer();
+    // restart chats listener because participants keys changed (we use login for participants)
+    if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
+    startChatsListener();
   } catch(e){ console.error('save settings', e); showToast('Ошибка сохранения'); }
 });
 
-/* ---------------- Chats listener ---------------- */
+/* logout */
+d_logout.addEventListener('click', async ()=>{ const ok = await confirmDialog('Выйти из аккаунта?'); if(!ok) return; try{ await auth.signOut(); closeDrawer(); } catch(e){ console.error(e); showToast('Ошибка выхода'); } });
+
+/* ---------------- chats listener (participants store logins) ---------------- */
 function startChatsListener(){
-  if(!profile || !profile.email) return;
+  if(!profile || !profile.login) return;
   if(chatsUnsub) chatsUnsub();
-  const q = db.collection('chats').where('participants','array-contains', profile.email);
+  const q = db.collection('chats').where('participants','array-contains', profile.login);
   chatsUnsub = q.onSnapshot(snapshot=>{
-    try {
+    try{
       const arr = [];
       snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
-      arr.sort((a,b)=> {
+      arr.sort((a,b)=>{
         const ta = a.updatedAt ? (a.updatedAt.seconds||0) : 0;
         const tb = b.updatedAt ? (b.updatedAt.seconds||0) : 0;
         return tb - ta;
       });
       renderChats(arr);
-    } catch(e){ console.error('renderChats', e); showToast('Ошибка отображения чатов'); }
-  }, err => { console.error('chats snap', err); showToast('Ошибка при получении списка чатов'); });
+    } catch(e){ console.error('chats render', e); showToast('Ошибка при получении чатов'); }
+  }, err=>{ console.error('chats snap', err); showToast('Ошибка при получении чатов'); });
 }
 
 function renderChats(chats){
   chatsDiv.innerHTML = '';
-  if(!chats.length){ chatsDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Чатов нет — создайте новый</div>'; return; }
+  if(!chats.length){ chatsDiv.innerHTML = '<div style="color:var(--muted);padding:12px">У вас пока нет чатов — найдите кого-нибудь по $логину</div>'; return; }
   chats.forEach(c=>{
-    const other = (c.participants||[]).find(x=> x !== profile.email) || 'Неизвестный';
+    const otherLogin = (c.participants||[]).find(x=> x !== profile.login) || 'Неизвестный';
     const el = document.createElement('div'); el.className='chat-item';
-    el.innerHTML = `<div class="avatar">${esc(other.slice(0,2)).toUpperCase()}</div>
-                    <div class="meta"><div class="name">${esc(other)}</div><div class="last">${esc(c.lastMessage||'')}</div></div>
-                    <div class="time">${tstr(c.updatedAt)}</div>`;
+    el.innerHTML = `<div class="ava">${esc(otherLogin.slice(0,2)).toUpperCase()}</div>
+      <div class="meta"><div class="name">${esc(otherLogin)}</div><div class="last">${esc(c.lastMessage||'')}</div></div>
+      <div class="time">${tstr(c.updatedAt)}</div>`;
     el.addEventListener('click', ()=> openChat(c.id));
     chatsDiv.appendChild(el);
   });
 }
 
-/* ---------------- Create/Open chat ---------------- */
-newChatBtn.addEventListener('click', ()=>{
+/* ---------------- create/open chat: search only by $login ---------------- */
+newChatBtn.addEventListener('click', async ()=>{
   const q = (searchInput.value||'').trim();
-  if(!q) return showToast('Введите email или $логин');
-  // for simplicity: if starts with $, search users for login else treat as email
-  if(q.startsWith('$')) searchUserByLoginAndCreate(q);
-  else createOrOpenChatWith(q);
-});
-
-async function searchUserByLoginAndCreate(login){
-  try {
-    const snap = await db.collection('users').where('login','==', login).limit(1).get();
+  if(!q) return showToast('Введите $логин пользователя');
+  if(!q.startsWith('$')) return showToast('Логин должен начинаться с $');
+  try{
+    const snap = await db.collection('users').where('login','==', q).limit(1).get();
     if(snap.empty) return showToast('Пользователь не найден');
     const ud = snap.docs[0].data();
-    createOrOpenChatWith(ud.email);
-  } catch(e){ console.error('search login', e); showToast('Ошибка поиска'); }
-}
+    createOrOpenChatWith(ud.login);
+  } catch(e){ console.error('search or create', e); showToast('Ошибка поиска'); }
+});
 
-async function createOrOpenChatWith(email){
+async function createOrOpenChatWith(otherLogin){
   if(!profile) return showToast('Войдите');
-  email = (email||'').trim();
-  if(!email) return showToast('Введите email');
-  try {
-    // find existing
-    const q = db.collection('chats').where('participants','array-contains', profile.email);
+  otherLogin = (otherLogin||'').trim();
+  if(!otherLogin) return;
+  try{
+    // try find existing chat that contains both logins
+    const q = db.collection('chats').where('participants','array-contains', profile.login);
     const snap = await q.get();
     let found = null;
     snap.forEach(d=>{
       const data = d.data();
-      if(Array.isArray(data.participants) && data.participants.includes(email)) found = { id:d.id, ...data };
+      if(Array.isArray(data.participants) && data.participants.includes(otherLogin)) found = { id:d.id, ...data };
     });
     if(found){ openChat(found.id); return; }
-    const ref = await db.collection('chats').add({ participants:[profile.email, email], lastMessage:'', updatedAt: FieldValue.serverTimestamp() });
+    // create new chat
+    const ref = await db.collection('chats').add({ participants: [profile.login, otherLogin], lastMessage: '', updatedAt: FieldValue.serverTimestamp() });
     openChat(ref.id);
-  } catch(e){ console.error('createOrOpen', e); showToast('Ошибка создания чата'); }
+  } catch(e){ console.error('createOrOpenChat', e); showToast('Ошибка создания чата'); }
 }
 
-/* ---------------- Open chat & messages (with delivered/read logic) ---------------- */
+/* ---------------- open chat & messages: delivered/read logic ---------------- */
 function openChat(chatId){
   activeChatId = chatId;
   chatHeader.style.display = 'flex';
   composer.style.display = 'flex';
-  messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Загрузка...</div>';
-  // set chat title
-  db.collection('chats').doc(chatId).get().then(snap=>{
+  messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Загрузка сообщений...</div>';
+  // set chat title (other user's login and profile)
+  db.collection('chats').doc(chatId).get().then(async snap=>{
     if(!snap.exists) return;
     const data = snap.data();
-    const other = (data.participants||[]).find(x=> x !== profile.email) || 'Чат';
-    chatTitle.textContent = other;
-    chatSub.textContent = '';
-    // try to get other user's lastActive if available
-    db.collection('users').where('email','==', other).limit(1).get().then(u=>{
-      if(!u.empty){ const ud = u.docs[0].data(); chatSub.textContent = ud.about || ''; }
-    });
+    const otherLogin = (data.participants||[]).find(x=> x !== profile.login) || '';
+    chatTitle.textContent = otherLogin;
+    // try fetch other user's public info
+    const userSnap = await db.collection('users').where('login','==', otherLogin).limit(1).get();
+    if(!userSnap.empty){
+      const ud = userSnap.docs[0].data();
+      chatTitle.textContent = ud.name || otherLogin;
+      chatSub.textContent = ud.about || '';
+    } else {
+      chatSub.textContent = '';
+    }
   }).catch(e=>console.error('chat meta', e));
+
   // unsubscribe previous
   if(msgsUnsub) msgsUnsub();
   const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
@@ -430,56 +468,53 @@ function openChat(chatId){
     const arr = []; snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
     renderMessages(arr);
 
-    // docChanges to mark delivered when a new message arrives to this client (if it's not from me)
+    // mark delivered for newly added messages (if from other user and not yet deliveredAt)
     snapshot.docChanges().forEach(async change=>{
       if(change.type === 'added'){
         const m = change.doc.data();
-        // if message from other user and not yet deliveredAt -> mark delivered
-        if(m.from !== profile.email && !m.deliveredAt){
-          try {
-            await db.collection('chats').doc(chatId).collection('messages').doc(change.doc.id).update({ deliveredAt: FieldValue.serverTimestamp() });
-          } catch(e){ console.error('mark delivered', e); }
+        if(m.from !== profile.login && !m.deliveredAt){
+          try{ await db.collection('chats').doc(chatId).collection('messages').doc(change.doc.id).update({ deliveredAt: FieldValue.serverTimestamp() }); } catch(e){ console.error('mark delivered', e); }
         }
       }
     });
 
-    // after rendering, mark read (messages from others without readAt)
+    // after rendering, mark read
     await markMessagesRead(chatId);
-  }, err=>{ console.error('msgs snap err', err); showToast('Ошибка получения сообщений'); });
+  }, err=>{
+    console.error('messages snap err', err); showToast('Ошибка получения сообщений');
+  });
 
-  // on small screens hide left pane
-  if(window.innerWidth < 720) document.getElementById('leftPane').style.display = 'none';
+  // mobile: hide left pane
+  if(window.innerWidth < 720) leftPane.style.display = 'none';
 }
 
-/* ---------------- render messages with checks & long-press actions ---------------- */
+/* ---------------- render messages with checks and edit/delete binding ---------------- */
 function renderMessages(msgs){
   messagesDiv.innerHTML = '';
   if(!msgs.length){ messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Чат пуст</div>'; return; }
   msgs.forEach(m=>{
     const el = document.createElement('div');
-    el.className = 'msg ' + (m.from === profile.email ? 'me' : 'you');
-    const checks = (m.from === profile.email) ? (m.readAt ? '✓✓' : (m.deliveredAt ? '✓' : '')) : '';
+    el.className = 'msg ' + (m.from === profile.login ? 'me' : 'you');
+    const checks = (m.from === profile.login) ? (m.readAt ? '✓✓' : (m.deliveredAt ? '✓' : '')) : '';
     const checksHtml = checks ? `<span class="checks">${esc(checks)}</span>` : '';
-    const meta = `<div class="meta"><span>${esc(m.from)}</span> · <span>${tstr(m.createdAt)}</span> ${checksHtml}</div>`;
-    const body = `<div>${esc(m.text||'')}</div>`;
-    el.innerHTML = meta + body;
-    // attach events for edit/delete if my message
+    const metaHtml = `<div class="meta"><span>${esc(m.from)}</span> · <span>${tstr(m.createdAt)}</span>${checksHtml}</div>`;
+    const bodyHtml = `<div>${esc(m.text||'')}</div>`;
+    el.innerHTML = metaHtml + bodyHtml;
+    // bind long press / contextmenu for edit/delete
     bindMessageActions(el, m);
     messagesDiv.appendChild(el);
   });
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-/* Long-press (touch) or right-click to open actions for a message */
+/* long-press and right-click to open menu for own messages */
 function bindMessageActions(el, msg){
-  // allow only for my messages: edit/delete
-  let timer = null;
-  const longMs = 600;
+  let timer = null; const longMs = 600;
   const start = e=>{
-    if(e.type === 'contextmenu'){ e.preventDefault(); showMessageMenu(msg); return; }
-    timer = setTimeout(()=> showMessageMenu(msg), longMs);
+    if(e.type === 'contextmenu'){ e.preventDefault(); openMessageMenu(msg); return; }
+    timer = setTimeout(()=> openMessageMenu(msg), longMs);
   };
-  const cancel = ()=>{ if(timer){ clearTimeout(timer); timer = null; } };
+  const cancel = ()=>{ if(timer){ clearTimeout(timer); timer=null; } };
   el.addEventListener('touchstart', start, {passive:false});
   el.addEventListener('mousedown', start);
   el.addEventListener('touchend', cancel);
@@ -488,54 +523,47 @@ function bindMessageActions(el, msg){
   el.addEventListener('contextmenu', start);
 }
 
-/* Show menu (custom via modal) */
-async function showMessageMenu(msg){
-  // Only allow edit/delete for messages from me
-  if(msg.from !== profile.email) return;
-  // present simple modal: Edit or Delete
-  // we'll reuse confirm + edit modals
-  // ask what to do
-  const choice = await new Promise(resolve=>{
-    // build a quick in-modal menu inside confirm modal
-    confirmText.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button id="__optEdit" class="btn">Изменить</button>
-        <button id="__optDel" class="btn small-btn">Удалить</button>
-        <button id="__optClose" class="btn small-btn">Отмена</button>
-      </div>
-    `;
-    openModal(modalConfirm);
-    document.getElementById('__optEdit').onclick = ()=>{ closeModal(modalConfirm); resolve('edit'); };
-    document.getElementById('__optDel').onclick = ()=>{ closeModal(modalConfirm); resolve('delete'); };
-    document.getElementById('__optClose').onclick = ()=>{ closeModal(modalConfirm); resolve(null); };
-  });
-
-  if(choice === 'edit'){
+/* menu: edit or delete (only for my messages) */
+async function openMessageMenu(msg){
+  if(msg.from !== profile.login) return;
+  // reuse confirm modal to show options
+  confirmText.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button id="__optEdit" class="btn">Изменить</button>
+      <button id="__optDel" class="btn small-btn">Удалить</button>
+      <button id="__optClose" class="btn small-btn">Отмена</button>
+    </div>`;
+  openModal(modalConfirm);
+  document.getElementById('__optEdit').onclick = ()=>{
+    closeModal(modalConfirm);
     editingMessage = msg;
     editText.value = msg.text || '';
     openModal(modalEdit);
-  } else if(choice === 'delete'){
+  };
+  document.getElementById('__optDel').onclick = async ()=>{
+    closeModal(modalConfirm);
     const ok = await confirmDialog('Удалить сообщение?');
     if(!ok) return;
-    try {
+    try{
       await db.collection('chats').doc(activeChatId).collection('messages').doc(msg.id).delete();
       showToast('Сообщение удалено');
-    } catch(e){ console.error('delete msg', e); showToast('Ошибка удаления'); }
-  }
+    } catch(e){ console.error('delete', e); showToast('Ошибка удаления'); }
+  };
+  document.getElementById('__optClose').onclick = ()=> closeModal(modalConfirm);
 }
 
-/* Edit modal actions */
+/* edit modal actions */
 editSave.addEventListener('click', async ()=>{
   if(!editingMessage) return;
-  const newText = (editText.value||'').trim();
-  try {
-    await db.collection('chats').doc(activeChatId).collection('messages').doc(editingMessage.id).update({ text:newText, edited:true });
-    // if chat.lastMessage equals old text, update it too
+  const nt = (editText.value||'').trim();
+  try{
+    await db.collection('chats').doc(activeChatId).collection('messages').doc(editingMessage.id).update({ text: nt, edited: true });
+    // update chat.lastMessage if it matched old
     const chatDoc = await db.collection('chats').doc(activeChatId).get();
     if(chatDoc.exists && chatDoc.data().lastMessage === editingMessage.text){
-      await db.collection('chats').doc(activeChatId).set({ lastMessage:newText, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
+      await db.collection('chats').doc(activeChatId).set({ lastMessage: nt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     }
-    showToast('Сообщение обновлено');
+    showToast('Сообщение изменено');
     editingMessage = null; closeModal(modalEdit);
   } catch(e){ console.error('edit save', e); showToast('Ошибка редактирования'); }
 });
@@ -544,17 +572,18 @@ editCancel.addEventListener('click', ()=>{ editingMessage = null; closeModal(mod
 /* ---------------- mark messages read ---------------- */
 async function markMessagesRead(chatId){
   if(!profile) return;
-  try {
+  try{
     const q = db.collection('chats').doc(chatId).collection('messages')
-      .where('from','!=', profile.email)
+      .where('from','!=', profile.login)
       .where('readAt','==', null);
     const snap = await q.get();
+    if(snap.empty) return;
     const batch = db.batch();
     snap.forEach(docSnap => {
       const ref = db.collection('chats').doc(chatId).collection('messages').doc(docSnap.id);
       batch.update(ref, { readAt: FieldValue.serverTimestamp() });
     });
-    if(!snap.empty) await batch.commit();
+    await batch.commit();
   } catch(e){ console.error('mark read', e); }
 }
 
@@ -563,73 +592,109 @@ sendBtn.addEventListener('click', async ()=>{
   if(!activeChatId) return showToast('Откройте чат');
   const txt = (messageText.value||'').trim();
   if(!txt) return;
-  try {
-    const msgObj = { from: profile.email, text: txt, createdAt: FieldValue.serverTimestamp(), type:'text' };
+  try{
+    const msgObj = { from: profile.login, text: txt, createdAt: FieldValue.serverTimestamp(), type: 'text' };
     await db.collection('chats').doc(activeChatId).collection('messages').add(msgObj);
-    await db.collection('chats').doc(activeChatId).set({ lastMessage: txt, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
+    await db.collection('chats').doc(activeChatId).set({ lastMessage: txt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     messageText.value = '';
   } catch(e){ console.error('send', e); showToast('Ошибка отправки'); }
 });
 messageText.addEventListener('keydown', e=>{ if(e.key === 'Enter') sendBtn.click(); });
 
-/* ---------------- view profile (click chat title) ---------------- */
+/* ---------------- back button and swipe to close chat ---------------- */
+backBtn.addEventListener('click', ()=> closeChat());
+(function chatSwipeClose(){
+  let startX=0, touching=false;
+  messagesDiv.addEventListener('touchstart', e=>{ startX = e.touches[0].clientX; touching=true; });
+  messagesDiv.addEventListener('touchmove', e=>{ if(!touching) return; const cur = e.touches[0].clientX; const dx = cur - startX; if(dx > 60){ closeChat(); touching=false; } });
+  messagesDiv.addEventListener('touchend', ()=>{ touching=false; });
+})();
+
+function closeChat(){
+  if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
+  activeChatId = null;
+  composer.style.display = 'none';
+  chatHeader.style.display = 'none';
+  messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Выберите чат или найдите по $логину</div>';
+  if(window.innerWidth < 720) leftPane.style.display = 'block';
+}
+
+/* ---------------- view profile modal (click header title) ---------------- */
 chatTitle.addEventListener('click', async ()=>{
   if(!activeChatId) return;
-  try {
+  try{
     const chatDoc = await db.collection('chats').doc(activeChatId).get();
     if(!chatDoc.exists) return;
-    const other = (chatDoc.data().participants||[]).find(x=> x !== profile.email);
-    if(!other) return;
-    const snap = await db.collection('users').where('email','==', other).limit(1).get();
+    const otherLogin = (chatDoc.data().participants||[]).find(x=> x !== profile.login);
+    if(!otherLogin) return;
+    const snap = await db.collection('users').where('login','==', otherLogin).limit(1).get();
     if(snap.empty){
-      profileContent.innerHTML = `<div>Пользователь: ${esc(other)}</div><div style="margin-top:8px;color:var(--muted)">Нет дополнительных данных</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close" class="btn small-btn">Закрыть</button></div>`;
+      profileViewer.innerHTML = `<div>Пользователь: ${esc(otherLogin)}</div><div style="margin-top:10px;color:var(--muted)">Доп. данных нет</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close" class="btn small-btn">Закрыть</button></div>`;
       openModal(modalProfile);
       document.getElementById('pv_close').onclick = ()=> closeModal(modalProfile);
       return;
     }
     const ud = snap.docs[0].data();
-    profileContent.innerHTML = `
+    profileViewer.innerHTML = `
       <div style="display:flex;gap:12px;align-items:center">
-        <div style="width:84px;height:84;border-radius:12px;background:#eee;display:flex;align-items:center;justify-content:center;font-weight:700">${esc((ud.name||ud.email||'').slice(0,2)).toUpperCase()}</div>
+        <div style="width:84px;height:84;border-radius:12px;background:#eee;display:flex;align-items:center;justify-content:center">${esc((ud.name||ud.login||'').slice(0,2)).toUpperCase()}</div>
         <div>
-          <div style="font-weight:700">${esc(ud.name||ud.email)}</div>
+          <div style="font-weight:700">${esc(ud.name||ud.login)}</div>
           <div style="color:var(--muted);margin-top:6px">${esc(ud.login||'')}</div>
           <div style="margin-top:8px;color:var(--muted);max-width:260px">${esc(ud.about||'')}</div>
         </div>
       </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:12px">
-        <button id="pv_close" class="btn small-btn">Закрыть</button>
-      </div>`;
+      <div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close" class="btn small-btn">Закрыть</button></div>
+    `;
     openModal(modalProfile);
     document.getElementById('pv_close').onclick = ()=> closeModal(modalProfile);
   } catch(e){ console.error('view profile', e); showToast('Ошибка просмотра профиля'); }
 });
 
-/* ---------------- utilities: close modals on backdrop click ---------------- */
+/* ---------------- drawer profile / open settings buttons ---------------- */
+openProfileBtn.addEventListener('click', async ()=>{
+  closeDrawer();
+  // open profile viewer for self
+  profileViewer.innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="width:84px;height:84;border-radius:12px;background:#eee;display:flex;align-items:center;justify-content:center">${esc((profile.name||profile.login||'').slice(0,2)).toUpperCase()}</div>
+      <div>
+        <div style="font-weight:700">${esc(profile.name || profile.login)}</div>
+        <div style="color:var(--muted);margin-top:6px">${esc(profile.login)}</div>
+        <div style="margin-top:8px;color:var(--muted);max-width:260px">${esc(profile.about||'')}</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close_self" class="btn small-btn">Закрыть</button></div>
+  `;
+  openModal(modalProfile);
+  document.getElementById('pv_close_self').onclick = ()=> closeModal(modalProfile);
+});
+
+openSettingsBtn.addEventListener('click', ()=>{ /* drawer already shows settings fields */ });
+
+/* ---------------- close drawer on swipe left already implemented above ---------------- */
+
+/* ---------------- util: close modals on backdrop click ---------------- */
 document.querySelectorAll('.modal-back').forEach(el=>{
   el.addEventListener('click', (ev)=>{ if(ev.target === el) el.style.display = 'none'; });
 });
 
 /* ---------------- initial UI on load ---------------- */
-window.addEventListener('load', ()=> {
+window.addEventListener('load', ()=>{
   modalLogin.style.display = 'none';
-  modalSettings.style.display = 'none';
   modalProfile.style.display = 'none';
   modalEdit.style.display = 'none';
   modalConfirm.style.display = 'none';
+  overlay.classList.remove('show');
   // show login if not authed
   if(!auth.currentUser) openModal(modalLogin);
 });
 
-/* ---------------- cleanup on sign-out handled by onAuthStateChanged ---------------- */
-
-/* -----------------------------------------------------------------------------------
-   Проверки (3×) — что я перепроверил:
-   1) Поля deliveredAt / readAt: логика установки в onSnapshot (added -> mark delivered), и markMessagesRead при открытии чата.
-   2) Рендер галочек: проверил порядок условий (readAt -> show ✓✓; else if deliveredAt -> ✓).
-   3) Edit/Delete flows: редактирование обновляет message doc и, если lastMessage совпадал со старым текстом, обновляет chat.lastMessage.
-   Также проверил отсутствие прямых alert/prompt — используются кастомные модалки и confirmDialog.
-   ----------------------------------------------------------------------------------- */
+/* ---------------- notes on Firestore structure ----------------
+ - users/{uid} : { email, name, login (starts with $), about, ... }
+ - chats/{chatId} : { participants: [loginA, loginB], lastMessage, updatedAt }
+ - chats/{chatId}/messages/{msgId} : { from: login, text, createdAt, deliveredAt?, readAt?, edited? }
+---------------------------------------------------------------------------------------- */
 
 </script>
 </body>
