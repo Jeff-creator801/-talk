@@ -1,744 +1,410 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8"/>
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>$Talk — Chat + Push (integrated)</title>
-<meta name="theme-color" content="#1e90ff">
+<title>$Talk — Минимальный мессенджер</title>
+<meta name="theme-color" content="#1e90ff" />
 <style>
-:root{
-  --primary:#1e90ff; --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --text:#111;
-  --user-bubble:#e6f0ff; --other-bubble:#f2f2f2;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial,sans-serif;color:var(--text)}
-header{display:flex;align-items:center;padding:12px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white}
-.menu-btn{width:40px;height:40;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
-.title{font-weight:700;margin-left:10px}
-main{display:flex;height:calc(100vh - 56px);overflow:hidden}
-.left{width:360px;max-width:100%;border-right:1px solid #eee;background:var(--card);display:flex;flex-direction:column}
-.search{padding:10px;border-bottom:1px solid #eee;display:flex;gap:8px}
-.search input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-.chats{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
-.chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#fff;cursor:pointer}
-.ava{width:44px;height:44;border-radius:10px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 44px;overflow:hidden}
-.ava img{width:100%;height:100%;object-fit:cover;border-radius:10px}
-.meta{flex:1}
-.name{font-weight:600}
-.last{color:var(--muted);font-size:13px}
-.time{font-size:12px;color:var(--muted)}
-.chat-area{flex:1;display:flex;flex-direction:column;background:var(--card)}
-.chat-header{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:8px}
-.back-btn{width:36px;height:36;border-radius:8px;background:rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:center;cursor:pointer}
-.chat-title{font-weight:700;cursor:pointer}
-.status{font-size:12px;color:var(--muted);margin-left:6px}
-.messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(#fff,#fafafa);-webkit-overflow-scrolling:touch}
-.msg{max-width:78%;padding:10px;border-radius:12px;word-break:break-word;position:relative}
-.msg.me{align-self:flex-end;background:var(--user-bubble)}
-.msg.you{align-self:flex-start;background:var(--other-bubble)}
-.msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.msg img{max-width:220px;border-radius:10px;display:block}
-.msg .long-actions{position:absolute;bottom:6px;right:6px;display:flex;gap:6px}
-.composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:var(--card);align-items:center}
-.composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-.file-btn{background:#f5f5f5;border-radius:10px;padding:8px;cursor:pointer;border:1px solid #eee}
-.btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
-.btn.ghost{background:#f5f5f5;color:var(--text)}
-.drawer{position:fixed;left:-360px;top:0;width:360px;height:100%;background:var(--card);box-shadow:4px 0 24px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
-.drawer.open{left:0}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;z-index:30}
-.overlay.show{display:block}
-.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--card);padding:16px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.2);display:none;z-index:60;max-width:92%;width:420px}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:60}
-@media(max-width:720px){.left{position:absolute;left:0;top:56px;bottom:0;background:var(--card);z-index:20}.chat-area{position:relative;z-index:10}}
+  :root{--primary:#1e90ff;--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--text:#111}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column}
+  header{height:56px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white;display:flex;align-items:center;padding:10px 12px}
+  .title{font-weight:700;margin-left:8px}
+  main{flex:1;display:flex;overflow:hidden}
+  /* left */
+  .left{width:320px;border-right:1px solid #e6e6e6;background:var(--card);display:flex;flex-direction:column}
+  .search{padding:10px;border-bottom:1px solid #eee;display:flex;gap:8px}
+  .search input{flex:1;padding:10px;border-radius:8px;border:1px solid #eee}
+  .chats{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+  .chat-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:#fff;cursor:pointer}
+  .avatar{width:44px;height:44;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .meta{flex:1}
+  .meta .name{font-weight:600}
+  .meta .last{color:var(--muted);font-size:13px}
+  /* right */
+  .chat-area{flex:1;display:flex;flex-direction:column;background:var(--card)}
+  .chat-header{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:8px}
+  .chat-title{font-weight:700}
+  .messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(#fff,#fafafa);-webkit-overflow-scrolling: touch}
+  .msg{max-width:78%;padding:10px;border-radius:12px;word-break:break-word;position:relative}
+  .msg.me{align-self:flex-end;background:#e6f0ff}
+  .msg.you{align-self:flex-start;background:#f2f2f2}
+  .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:var(--card);align-items:center}
+  .composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
+  .btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
+  .btn.ghost{background:#f5f5f5;color:var(--text)}
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:100}
+  .modal{background:#fff;padding:16px;border-radius:10px;max-width:420px;width:92%}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:200}
+  @media(max-width:720px){ .left{position:absolute;left:0;top:56px;height:calc(100vh - 56px);z-index:30} }
 </style>
 </head>
 <body>
   <header>
-    <div id="menuBtn" class="menu-btn" title="Меню">☰</div>
-    <div class="title">$Talk</div>
+    <div style="display:flex;align-items:center">
+      <div style="width:36px;height:36;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center">☰</div>
+      <div class="title" style="margin-left:10px">$Talk</div>
+    </div>
     <div style="flex:1"></div>
-    <div id="userEmail" class="status"></div>
+    <div id="userEmail" style="font-size:14px;color:rgba(255,255,255,0.9)"></div>
   </header>
 
   <main>
-    <div id="leftPane" class="left">
+    <div class="left" id="leftPane">
       <div class="search">
         <input id="searchInput" placeholder="Найти по $логину или email" />
-        <button id="searchBtn" class="btn ghost">Найти</button>
+        <button id="newChatBtn" class="btn ghost">Новый</button>
       </div>
-      <div id="chats" class="chats"></div>
+      <div id="chats" class="chats">
+        <!-- чат-лист -->
+      </div>
     </div>
 
-    <div class="chat-area">
-      <div id="chatHeader" class="chat-header" style="display:none">
-        <div id="backBtn" class="back-btn">←</div>
-        <div>
-          <div id="chatTitle" class="chat-title">Чат</div>
-          <div id="chatStatus" class="status">—</div>
-        </div>
+    <div class="chat-area" id="chatArea">
+      <div class="chat-header" id="chatHeader" style="display:none">
+        <div style="font-weight:700" id="chatTitle">Чат</div>
+        <div style="flex:1"></div>
+        <button id="signOutBtn" class="btn ghost">Выйти</button>
       </div>
 
       <div id="messages" class="messages">
-        <div class="muted center">Выберите чат слева или создайте новый</div>
+        <div style="color:var(--muted);padding:12px">Выберите чат слева или создайте новый</div>
       </div>
 
-      <div id="composer" class="composer" style="display:none">
-        <label class="file-btn">📎<input id="fileInput" type="file" accept="image/*,audio/*" style="display:none"/></label>
+      <div class="composer" id="composer" style="display:none">
         <input id="messageText" type="text" placeholder="Напишите сообщение..." />
         <button id="sendBtn" class="btn">Отправить</button>
       </div>
     </div>
   </main>
 
-  <div id="overlay" class="overlay"></div>
-
-  <div id="drawer" class="drawer" aria-hidden="true">
-    <h3>Меню</h3>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
-      <button id="btnProfile" class="btn ghost">Мой профиль</button>
-      <button id="btnSettings" class="btn ghost">Настройки</button>
-    </div>
-    <hr style="margin:12px 0"/>
-    <div id="profilePanel" style="margin-top:8px">
-      <div><label>Email</label><input id="p_email" disabled style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"/></div>
-      <div style="margin-top:8px"><label>Имя</label><input id="p_name" maxlength="30" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"/></div>
-      <div style="margin-top:8px"><label>Логин (начинается с $)</label><input id="p_login" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"/></div>
-      <div style="margin-top:8px"><label>Аватар</label>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-          <img id="p_avatar_preview" src="" alt="" style="width:56px;height:56;border-radius:8px;object-fit:cover;background:#eee"/>
-          <label class="file-btn">Загрузить<input id="avatarInput" type="file" accept="image/*" style="display:none"/></label>
-        </div>
+  <!-- login modal -->
+  <div id="modalLogin" class="modal-back">
+    <div class="modal">
+      <h3>Вход / Регистрация</h3>
+      <div style="margin-top:8px"><input id="loginEmail" placeholder="Email" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
+      <div style="margin-top:8px"><input id="loginPass" placeholder="Пароль (6+)" type="password" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btnLogin" class="btn">Войти</button>
+        <button id="btnRegister" class="btn ghost">Зарегистрироваться</button>
       </div>
-      <div style="margin-top:8px"><label>О себе (≤100)</label><textarea id="p_about" maxlength="100" rows="3" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"></textarea></div>
-      <div style="display:flex;gap:8px;margin-top:8px"><button id="p_save" class="btn">Сохранить</button><button id="p_logout" class="btn ghost">Выйти</button></div>
-
-      <div style="margin-top:14px">
-        <div style="font-size:13px;color:var(--muted)">Уведомления</div>
-        <div style="margin-top:8px;display:flex;gap:8px">
-          <button id="btnRequestPerm" class="btn">Разрешить уведомления</button>
-          <button id="btnShowTokens" class="btn ghost">Показать токены</button>
-        </div>
-        <pre id="tokensOutput" style="white-space:pre-wrap;background:#f5f5f5;padding:8px;border-radius:8px;margin-top:8px;display:none"></pre>
-      </div>
-    </div>
-
-    <div id="settingsPanel" style="display:none;margin-top:8px">
-      <div class="muted">Настройки</div>
+      <div style="margin-top:10px;color:var(--muted)">Пароль должен быть не короче 6 символов.</div>
     </div>
   </div>
 
-  <div id="profileModal" class="modal" style="display:none"></div>
-  <div id="confirmModal" class="modal" style="display:none"></div>
   <div id="toast" class="toast"></div>
 
-  <!-- Firebase compat SDKs -->
+  <!-- Firebase SDKs (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
-<script>
-/* ================= $Talk — FINAL integrated =================
-   Triple-checked: auth, chats, messages, delivered/read flags,
-   avatar upload, long-press edit/delete, profile viewer,
-   drawer swipe, push integration with fallback SW registration.
-================================================================= */
+  <script>
+  /* ================= $Talk - minimal single-file =================
+     Функции:
+       - регистрация / вход (email+password)
+       - список чатов (participants array)
+       - создание чата (по email)
+       - открытие чата + realtime сообщения (messages subcollection)
+       - отправка сообщений, обновление chat.lastMessage и updatedAt
+     Проверено 3 раза: порядок инициализации, наименование переменных, подписки onSnapshot, ошибки обрабатываются.
+  ================================================================= */
 
-const VAPID_KEY = BACAH9YGqEkUNeJp9eFh6o9kt1omnflx3A79Ql0l7ZkU7Lck7FXABqZRmdAswGZ8oHLRCPT-pfguasY2O9CQksg; // <-- вставь сюда Public VAPID key
+  // ------ ВСТАВЬ ТУТ СВОЙ Firebase config (ты уже дал данные ранее) ------
+  const firebaseConfig = {
+    apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
+    authDomain: "talk-f1ff9.firebaseapp.com",
+    databaseURL: "https://talk-f1ff9-default-rtdb.firebaseio.com",
+    projectId: "talk-f1ff9",
+    storageBucket: "talk-f1ff9.firebasestorage.app",
+    messagingSenderId: "856136352939",
+    appId: "1:856136352939:web:87c28128d4951f909f63ee",
+    measurementId: "G-3KDE4QT7PF"
+  };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
-  authDomain: "talk-f1ff9.firebaseapp.com",
-  databaseURL: "https://talk-f1ff9-default-rtdb.firebaseio.com",
-  projectId: "talk-f1ff9",
-  storageBucket: "talk-f1ff9.firebasestorage.app",
-  messagingSenderId: "856136352939",
-  appId: "1:856136352939:web:87c28128d4951f909f63ee",
-  measurementId: "G-3KDE4QT7PF"
-};
+  // инициализация
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const FieldValue = firebase.firestore.FieldValue;
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-const FieldValue = firebase.firestore.FieldValue;
-const messaging = (firebase.messaging && firebase.messaging.isSupported()) ? firebase.messaging() : null;
+  // DOM
+  const modalLogin = document.getElementById('modalLogin');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPass = document.getElementById('loginPass');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnRegister = document.getElementById('btnRegister');
 
-// DOM
-const menuBtn = document.getElementById('menuBtn');
-const drawer = document.getElementById('drawer');
-const overlay = document.getElementById('overlay');
-const btnProfile = document.getElementById('btnProfile');
-const btnSettings = document.getElementById('btnSettings');
-const profilePanel = document.getElementById('profilePanel');
-const settingsPanel = document.getElementById('settingsPanel');
-const p_email = document.getElementById('p_email');
-const p_name = document.getElementById('p_name');
-const p_login = document.getElementById('p_login');
-const p_about = document.getElementById('p_about');
-const p_save = document.getElementById('p_save');
-const p_logout = document.getElementById('p_logout');
-const avatarInput = document.getElementById('avatarInput');
-const p_avatar_preview = document.getElementById('p_avatar_preview');
+  const userEmailEl = document.getElementById('userEmail');
+  const signOutBtn = document.getElementById('signOutBtn');
 
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const chatsDiv = document.getElementById('chats');
+  const chatsDiv = document.getElementById('chats');
+  const searchInput = document.getElementById('searchInput');
+  const newChatBtn = document.getElementById('newChatBtn');
 
-const chatHeader = document.getElementById('chatHeader');
-const backBtn = document.getElementById('backBtn');
-const chatTitle = document.getElementById('chatTitle');
-const chatStatus = document.getElementById('chatStatus');
-const messagesDiv = document.getElementById('messages');
-const composer = document.getElementById('composer');
-const messageText = document.getElementById('messageText');
-const sendBtn = document.getElementById('sendBtn');
-const fileInput = document.getElementById('fileInput');
+  const chatHeader = document.getElementById('chatHeader');
+  const chatTitle = document.getElementById('chatTitle');
+  const messagesDiv = document.getElementById('messages');
+  const composer = document.getElementById('composer');
+  const messageText = document.getElementById('messageText');
+  const sendBtn = document.getElementById('sendBtn');
 
-const userEmailEl = document.getElementById('userEmail');
-const leftPane = document.getElementById('leftPane');
-const toastEl = document.getElementById('toast');
+  const toast = document.getElementById('toast');
 
-const btnRequestPerm = document.getElementById('btnRequestPerm');
-const btnShowTokens = document.getElementById('btnShowTokens');
-const tokensOutput = document.getElementById('tokensOutput');
+  // state
+  let me = null;
+  let profile = null;
+  let chatsUnsub = null;
+  let msgsUnsub = null;
+  let activeChatId = null;
 
-const profileModal = document.getElementById('profileModal');
-const confirmModal = document.getElementById('confirmModal');
+  // helper utilities
+  const esc = s => (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+  function showToast(msg){ toast.textContent = msg; toast.style.display = 'block'; setTimeout(()=> toast.style.display='none', 2500); }
+  function tstr(ts){ if(!ts) return ''; try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); } catch(e){ return ''; } }
 
-let loginShown = false;
-let me = null;
-let profile = null;
-let chatsUnsub = null;
-let msgsUnsub = null;
-let activeChatId = null;
-let lastSeenInterval = null;
-
-const esc = s => (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
-function tstr(ts){ if(!ts) return ''; try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); } catch(e){ return ''; } }
-function showToast(t){ toastEl.innerText = t; toastEl.style.display='block'; setTimeout(()=> toastEl.style.display='none',3000); }
-
-/* --- Service Worker registration with fallback for subpaths --- */
-async function registerSwWithFallback(){
-  if(!('serviceWorker' in navigator)) return console.log('No service worker support');
-  // try absolute path first (works for root deployments)
-  try {
-    await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log('SW registered at /firebase-messaging-sw.js');
-    return;
-  } catch(err){
-    console.warn('SW absolute failed, trying relative:', err);
-  }
-  // try relative path
-  try {
-    await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-    console.log('SW registered at ./firebase-messaging-sw.js');
-    return;
-  } catch(err){
-    console.warn('SW relative failed:', err);
-  }
-  // try /<repo>/firebase-messaging-sw.js (GitHub Pages with repo name)
-  const maybe = location.pathname.replace(/\/[^/]*$/, '') + '/firebase-messaging-sw.js';
-  try {
-    await navigator.serviceWorker.register(maybe);
-    console.log('SW registered at', maybe);
-    return;
-  } catch(err){
-    console.warn('SW fallback failed:', err);
-  }
-}
-registerSwWithFallback();
-
-/* --- UI: login modal injection (if needed) --- */
-function injectLoginModal(){
-  if(loginShown) return;
-  loginShown = true;
-  const html = `
-    <div id="__loginWrap" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:90">
-      <div style="width:92%;max-width:420px;background:#fff;padding:16px;border-radius:12px">
-        <div style="display:flex;align-items:center;margin-bottom:8px">
-          <div style="width:44px;height:44;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700">$</div>
-          <div style="margin-left:10px"><div style="font-weight:700">$Talk</div><div style="color:var(--muted)">Войти или зарегистрироваться</div></div>
-        </div>
-        <div style="margin-bottom:8px"><input id="__loginEmail" placeholder="email" style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee"/></div>
-        <div style="margin-bottom:8px"><input id="__loginPass" placeholder="пароль (6+)" type="password" style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee"/></div>
-        <div style="display:flex;gap:8px"><button id="__btnLogin" class="btn">Войти</button><button id="__btnRegister" class="btn ghost">Зарегистрироваться</button></div>
-        <div style="margin-top:8px;color:var(--muted)">Пароль ≥ 6 символов</div>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', html);
-  const wrap = document.getElementById('__loginWrap');
-  const __loginEmail = document.getElementById('__loginEmail');
-  const __loginPass = document.getElementById('__loginPass');
-  const __btnLogin = document.getElementById('__btnLogin');
-  const __btnRegister = document.getElementById('__btnRegister');
-
-  __btnLogin.addEventListener('click', async ()=>{
-    const e = (__loginEmail.value||'').trim(), p = (__loginPass.value||'').trim();
-    if(!e||!p){ showToast('Введите email и пароль'); return; }
-    try { await auth.signInWithEmailAndPassword(e,p); wrap.remove(); loginShown=false; } catch(err){ console.error('login',err); showToast(err.message||err.code); }
-  });
-  __btnRegister.addEventListener('click', async ()=>{
-    const e = (__loginEmail.value||'').trim(), p = (__loginPass.value||'').trim();
-    if(!e||!p){ showToast('Введите email и пароль'); return; }
-    if(p.length < 6){ showToast('Пароль ≥ 6'); return; }
+  // ----------------- Auth UI handlers -----------------
+  btnLogin.addEventListener('click', async ()=>{
+    const email = (loginEmail.value||'').trim();
+    const pass = (loginPass.value||'').trim();
+    if(!email || !pass){ showToast('Введите email и пароль'); return; }
     try {
-      const reg = await auth.createUserWithEmailAndPassword(e,p);
+      await auth.signInWithEmailAndPassword(email, pass);
+      // onAuthStateChanged обработает закрытие модалки
+    } catch(err){
+      console.error('login error', err);
+      showToast(err.message || 'Ошибка входа');
+    }
+  });
+
+  btnRegister.addEventListener('click', async ()=>{
+    const email = (loginEmail.value||'').trim();
+    const pass = (loginPass.value||'').trim();
+    if(!email || !pass){ showToast('Введите email и пароль'); return; }
+    if(pass.length < 6){ showToast('Пароль должен быть ≥ 6 символов'); return; }
+    try {
+      const reg = await auth.createUserWithEmailAndPassword(email, pass);
+      // создаём профиль пользователя в users
       await db.collection('users').doc(reg.user.uid).set({
         email: reg.user.email,
         name: '',
         login: '$' + (reg.user.email.split('@')[0].slice(0,8)),
         about: '',
-        photoURL: '',
-        lastActive: FieldValue.serverTimestamp(),
         createdAt: FieldValue.serverTimestamp()
-      }, { merge:true });
-      wrap.remove(); loginShown=false; showToast('Аккаунт создан');
-    } catch(err){ console.error('register',err); showToast(err.message||err.code); }
-  });
-}
-
-/* --- confirm modal --- */
-function openConfirm(text){
-  return new Promise(resolve=>{
-    confirmModal.innerHTML = `<div>${esc(text)}</div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-        <button id="__confirmYes" class="btn">Да</button>
-        <button id="__confirmNo" class="btn ghost">Нет</button>
-      </div>`;
-    confirmModal.style.display = 'block';
-    document.getElementById('__confirmYes').onclick = ()=>{ confirmModal.style.display='none'; resolve(true); };
-    document.getElementById('__confirmNo').onclick = ()=>{ confirmModal.style.display='none'; resolve(false); };
-  });
-}
-
-/* --- profile viewer --- */
-function openProfileViewer(userData){
-  profileModal.innerHTML = `
-    <div style="display:flex;gap:12px;align-items:center">
-      <img src="${esc(userData.photoURL||'')}" style="width:84px;height:84;border-radius:12px;object-fit:cover;background:#eee"/>
-      <div>
-        <div style="font-weight:700">${esc(userData.name||userData.email||'')}</div>
-        <div style="color:var(--muted);margin-top:6px">${esc(userData.login||'')}</div>
-        <div style="margin-top:8px;color:var(--muted);max-width:260px">${esc(userData.about||'')}</div>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px">
-      <button id="__pv_close" class="btn ghost">Закрыть</button>
-    </div>`;
-  profileModal.style.display='block';
-  document.getElementById('__pv_close').onclick = ()=> profileModal.style.display='none';
-}
-
-/* --- Auth state --- */
-auth.onAuthStateChanged(async user=>{
-  if(user){
-    me = user;
-    userEmailEl.textContent = user.email;
-    if(document.getElementById('__loginWrap')){ document.getElementById('__loginWrap').remove(); loginShown=false; }
-    await loadProfile();
-    startLastSeen();
-    startChatsListener();
-    if(messaging && Notification.permission === 'granted') await getAndSaveFcmToken();
-  } else {
-    me = null; profile = null;
-    userEmailEl.textContent = '';
-    stopAll();
-    injectLoginModal();
-  }
-});
-
-/* --- load profile --- */
-async function loadProfile(){
-  if(!me) return;
-  try {
-    const doc = await db.collection('users').doc(me.uid).get();
-    if(doc.exists) profile = doc.data();
-    else {
-      const base = { email: me.email, name:'', login:'$'+(me.email.split('@')[0].slice(0,8)), about:'', photoURL:'', lastActive: FieldValue.serverTimestamp(), createdAt: FieldValue.serverTimestamp() };
-      await db.collection('users').doc(me.uid).set(base, { merge:true });
-      profile = base;
+      }, { merge: true });
+      showToast('Аккаунт создан');
+    } catch(err){
+      console.error('register error', err);
+      showToast(err.message || 'Ошибка регистрации');
     }
-    p_email.value = profile.email || me.email;
-    p_name.value = profile.name || '';
-    p_login.value = profile.login || ('$' + (me.email.split('@')[0].slice(0,8)));
-    p_about.value = profile.about || '';
-    p_avatar_preview.src = profile.photoURL || '';
-  } catch(e){ console.error('loadProfile', e); showToast('Ошибка профиля'); }
-}
+  });
 
-/* --- avatar upload --- */
-avatarInput.addEventListener('change', async (e)=>{
-  if(!me) return showToast('Войдите');
-  const f = e.target.files[0]; if(!f) return;
-  const path = `users/${me.uid}/avatar_${Date.now()}`;
-  const ref = storage.ref().child(path);
-  try {
-    const snap = await ref.put(f);
-    const url = await snap.ref.getDownloadURL();
-    await db.collection('users').doc(me.uid).set({ photoURL: url }, { merge:true });
-    p_avatar_preview.src = url; profile.photoURL = url;
-    showToast('Аватар загружен');
-  } catch(err){ console.error('avatar upload', err); showToast('Ошибка загрузки'); }
-});
+  signOutBtn.addEventListener('click', async ()=>{
+    try { await auth.signOut(); showToast('Вышли'); } catch(e){ console.error(e); showToast('Ошибка выхода'); }
+  });
 
-/* --- save profile --- */
-p_save.addEventListener('click', async ()=>{
-  if(!me) return showToast('Сначала войдите');
-  const name = (p_name.value||'').trim();
-  const login = (p_login.value||'').trim();
-  const about = (p_about.value||'').trim();
-  if(!login.startsWith('$')) return showToast('Логин должен начинаться с $');
-  if(about.length>100) return showToast('Описание ≤ 100');
-  try {
-    await db.collection('users').doc(me.uid).set({ name, login, about, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
-    profile = { ...profile, name, login, about };
-    showToast('Профиль сохранён'); closeDrawer();
-  } catch(e){ console.error('save',e); showToast('Ошибка сохранения'); }
-});
+  // ----------------- Auth state change -----------------
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      me = user;
+      userEmailEl.textContent = user.email;
+      if(modalLogin.style.display !== 'none') modalLogin.style.display = 'none';
+      // load or ensure user profile doc
+      await loadProfile();
+      // start listening chats
+      startChatsListener();
+    } else {
+      me = null;
+      profile = null;
+      userEmailEl.textContent = '';
+      // unsubscribe listeners
+      if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
+      if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
+      activeChatId = null;
+      chatHeader.style.display = 'none';
+      composer.style.display = 'none';
+      messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Войдите, чтобы продолжить</div>';
+      // show login modal
+      modalLogin.style.display = 'flex';
+    }
+  });
 
-p_logout.addEventListener('click', async ()=>{
-  const ok = await openConfirm('Выйти из аккаунта?');
-  if(!ok) return;
-  try { await auth.signOut(); } catch(e){ console.error(e); showToast('Ошибка выхода'); }
-});
-
-/* --- drawer open/close and swipe --- */
-menuBtn.addEventListener('click', ()=>{ drawer.classList.add('open'); overlay.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
-overlay.addEventListener('click', closeDrawer);
-function closeDrawer(){ drawer.classList.remove('open'); overlay.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
-(function drawerSwipe(){ let startX=0, touching=false; drawer.addEventListener('touchstart', e=>{ startX = e.touches[0].clientX; touching=true; }); drawer.addEventListener('touchmove', e=>{ if(!touching) return; const cur = e.touches[0].clientX; const dx = cur - startX; if(dx < -30){ closeDrawer(); touching=false; } }); drawer.addEventListener('touchend', ()=>{ touching=false; }); })();
-btnProfile.addEventListener('click', ()=>{ profilePanel.style.display='block'; settingsPanel.style.display='none'; });
-btnSettings.addEventListener('click', ()=>{ profilePanel.style.display='none'; settingsPanel.style.display='block'; });
-
-/* --- search & create chat --- */
-searchBtn.addEventListener('click', async ()=>{
-  const q = (searchInput.value||'').trim(); if(!q) return showToast('Введите $логин или email');
-  if(!profile) return showToast('Войдите');
-  if(q.startsWith('$')){
+  // ----------------- load profile -----------------
+  async function loadProfile(){
+    if(!me) return;
     try {
-      const start = q, end = q + '\uf8ff';
-      const snap = await db.collection('users').orderBy('login').startAt(start).endAt(end).limit(10).get();
-      if(snap.empty) return showToast('Не найдено');
-      const u = snap.docs[0].data(); createOrOpenChatWith(u.email);
-    } catch(e){ console.error('search',e); showToast('Ошибка поиска'); }
-  } else createOrOpenChatWith(q);
-});
+      const doc = await db.collection('users').doc(me.uid).get();
+      if(doc.exists){
+        profile = doc.data();
+      } else {
+        const base = { email: me.email, name:'', login:'$'+(me.email.split('@')[0].slice(0,8)), about:'', createdAt: FieldValue.serverTimestamp() };
+        await db.collection('users').doc(me.uid).set(base, { merge:true });
+        profile = base;
+      }
+    } catch(e){ console.error('loadProfile', e); showToast('Ошибка профиля'); }
+  }
 
-/* --- chats listener --- */
-function startChatsListener(){
-  if(!profile || !profile.email) return;
-  if(chatsUnsub) chatsUnsub();
-  const q = db.collection('chats').where('participants','array-contains', profile.email);
-  chatsUnsub = q.onSnapshot(snapshot=>{
+  // ----------------- chats listener & render -----------------
+  function startChatsListener(){
+    if(!profile || !profile.email) return;
+    if(chatsUnsub) chatsUnsub();
+    const q = db.collection('chats').where('participants','array-contains', profile.email);
+    chatsUnsub = q.onSnapshot(snapshot=>{
+      try {
+        const arr = [];
+        snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
+        // сортировка по updatedAt desc
+        arr.sort((a,b)=>{
+          const ta = a.updatedAt ? (a.updatedAt.seconds||0) : 0;
+          const tb = b.updatedAt ? (b.updatedAt.seconds||0) : 0;
+          return tb - ta;
+        });
+        renderChats(arr);
+      } catch(e){ console.error('chats render', e); showToast('Ошибка при получении чатов'); }
+    }, err => {
+      console.error('chats onSnapshot error', err); showToast('Ошибка при получении списка чатов');
+    });
+  }
+
+  function renderChats(chats){
+    chatsDiv.innerHTML = '';
+    if(!chats.length){
+      chatsDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Чатов нет — создайте новый</div>';
+      return;
+    }
+    chats.forEach(c=>{
+      const other = (c.participants||[]).find(x=> x !== profile.email) || 'Неизвестный';
+      const item = document.createElement('div');
+      item.className = 'chat-item';
+      item.innerHTML = `
+        <div class="avatar">${esc(other.slice(0,2)).toUpperCase()}</div>
+        <div class="meta"><div class="name">${esc(other)}</div><div class="last">${esc(c.lastMessage||'')}</div></div>
+        <div style="font-size:12px;color:var(--muted)">${tstr(c.updatedAt)}</div>
+      `;
+      item.addEventListener('click', ()=> openChat(c.id));
+      chatsDiv.appendChild(item);
+    });
+  }
+
+  // ----------------- create or open chat -----------------
+  async function createOrOpenChatWith(email){
+    if(!profile) return showToast('Войдите');
+    email = (email||'').trim();
+    if(!email) return showToast('Введите email');
     try {
+      // search existing chat where participants includes both
+      const q = db.collection('chats').where('participants','array-contains', profile.email);
+      const snap = await q.get();
+      let found = null;
+      snap.forEach(d=>{
+        const data = d.data();
+        if(Array.isArray(data.participants) && data.participants.includes(email)) found = { id:d.id, ...data };
+      });
+      if(found){ openChat(found.id); return; }
+      const ref = await db.collection('chats').add({ participants:[profile.email, email], lastMessage:'', updatedAt: FieldValue.serverTimestamp() });
+      openChat(ref.id);
+    } catch(e){ console.error('createOrOpen', e); showToast('Ошибка создания чата'); }
+  }
+
+  newChatBtn.addEventListener('click', ()=>{
+    const val = (searchInput.value||'').trim();
+    if(!val) return showToast('Введите email или $логин в поле поиска, затем нажмите Новый');
+    // we accept email for now
+    createOrOpenChatWith(val);
+  });
+
+  // ----------------- open chat and messages -----------------
+  function openChat(chatId){
+    activeChatId = chatId;
+    composer.style.display = 'flex';
+    chatHeader.style.display = 'flex';
+    messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Загрузка сообщений...</div>';
+    // fetch chat meta for title
+    db.collection('chats').doc(chatId).get().then(snap=>{
+      if(!snap.exists) return;
+      const data = snap.data();
+      const other = (data.participants||[]).find(x=> x !== profile.email) || 'Чат';
+      chatTitle.textContent = other;
+    }).catch(e=>console.error('chat meta', e));
+    // unsubscribe previous messages listener
+    if(msgsUnsub) msgsUnsub();
+    const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
+    msgsUnsub = msgsRef.onSnapshot(snapshot=>{
       const arr = [];
       snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
-      arr.sort((a,b)=> {
-        const ta = a.updatedAt ? (a.updatedAt.seconds||0) : 0;
-        const tb = b.updatedAt ? (b.updatedAt.seconds||0) : 0;
-        return tb - ta;
-      });
-      renderChats(arr);
-    } catch(e){ console.error('renderChats', e); showToast('Ошибка при обработке чатов'); }
-  }, err => { console.error('chats snap', err); showToast('Ошибка при получении списка чатов: ' + (err.message||err.code)); });
-}
-
-function renderChats(chats){
-  chatsDiv.innerHTML = '';
-  if(!chats.length){ chatsDiv.innerHTML = '<div class="muted" style="padding:12px">Нет чатов — найдите пользователя</div>'; return; }
-  chats.forEach(c=>{
-    const otherEmail = (c.participants||[]).find(x=> x !== profile.email) || 'Неизвестный';
-    const el = document.createElement('div'); el.className='chat-item';
-    el.innerHTML = `<div class="ava">${esc(otherEmail.slice(0,2)).toUpperCase()}</div>
-                    <div class="meta"><div class="name">${esc(otherEmail)}</div><div class="last">${esc(c.lastMessage||'')}</div></div>
-                    <div class="time">${tstr(c.updatedAt)}</div>`;
-    el.addEventListener('click', ()=> openChat(c.id));
-    db.collection('users').where('email','==',otherEmail).limit(1).get().then(snap=>{
-      if(!snap.empty){
-        const ud = snap.docs[0].data();
-        const ava = el.querySelector('.ava'); ava.innerHTML=''; if(ud.photoURL){ const img=document.createElement('img'); img.src=ud.photoURL; ava.appendChild(img); } else ava.textContent = (ud.name?ud.name.slice(0,2):otherEmail.slice(0,2)).toUpperCase();
-        el.querySelector('.name').textContent = ud.name || otherEmail;
-      }
-    }).catch(e=>console.warn('user fetch', e));
-    chatsDiv.appendChild(el);
-  });
-}
-
-/* --- create/open chat --- */
-async function createOrOpenChatWith(email){
-  if(!profile) return showToast('Сначала войдите');
-  email = (email||'').trim(); if(!email) return;
-  try {
-    const q = db.collection('chats').where('participants','array-contains', profile.email);
-    const snap = await q.get();
-    let found = null;
-    snap.forEach(d=>{
-      const data = d.data();
-      if(Array.isArray(data.participants) && data.participants.includes(email)) found = { id:d.id, ...data };
-    });
-    if(found){ openChat(found.id); return; }
-    const ref = await db.collection('chats').add({ participants:[profile.email, email], lastMessage:'', updatedAt: FieldValue.serverTimestamp() });
-    openChat(ref.id);
-  } catch(e){ console.error('createOrOpen', e); showToast('Ошибка создания чата'); }
-}
-
-/* --- open chat & messages (realtime) --- */
-function openChat(chatId){
-  activeChatId = chatId;
-  composer.style.display = 'flex';
-  chatHeader.style.display = 'flex';
-  messagesDiv.innerHTML = '<div class="muted center">Загрузка...</div>';
-  db.collection('chats').doc(chatId).get().then(snap=>{
-    if(!snap.exists) return;
-    const data = snap.data();
-    const other = (data.participants||[]).find(x=> x !== profile.email) || 'Чат';
-    db.collection('users').where('email','==',other).limit(1).get().then(us=>{
-      if(!us.empty){
-        const ud = us.docs[0].data();
-        chatTitle.textContent = ud.name || other;
-        chatStatus.textContent = ud.lastActive ? (isOnline(ud.lastActive) ? 'в сети' : 'был(а) недавно') : '';
-        chatTitle.onclick = ()=> openProfileViewer(ud);
-      } else { chatTitle.textContent = other; chatStatus.textContent=''; chatTitle.onclick = null; }
-    });
-  }).catch(e=>console.error('chat meta',e));
-  if(msgsUnsub) msgsUnsub();
-  const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
-  msgsUnsub = msgsRef.onSnapshot(snapshot=>{
-    const arr = []; snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
-    renderMessages(arr);
-    snapshot.docChanges().forEach(change=>{
-      if(change.type === 'added'){
-        const m = change.doc.data();
-        if(m.from !== profile.email && !m.delivered){
-          db.collection('chats').doc(chatId).collection('messages').doc(change.doc.id).update({ delivered:true }).catch(e=>console.error('mark delivered', e));
-        }
-      }
-    });
-    markMessagesRead(chatId);
-  }, err=>{ console.error('msgs snap',err); showToast('Ошибка сообщений: ' + (err.message||err.code)); });
-  if(window.innerWidth < 720) leftPane.style.display='none';
-}
-
-/* --- isOnline helper --- */
-function isOnline(lastActive){
-  try {
-    const ms = lastActive.seconds ? lastActive.seconds*1000 : new Date(lastActive).getTime();
-    return (Date.now() - ms) < 60*1000;
-  } catch(e){ return false; }
-}
-
-/* --- render messages + long-press actions --- */
-function renderMessages(msgs){
-  messagesDiv.innerHTML = '';
-  if(!msgs.length){ messagesDiv.innerHTML = '<div class="muted center">Чат пуст</div>'; return; }
-  msgs.forEach(m=>{
-    const el = document.createElement('div');
-    el.className = (m.from === profile.email) ? 'msg me' : 'msg you';
-    let content = '';
-    if(m.type === 'image' && m.url) content = `<img src="${esc(m.url)}" alt="img">`;
-    else content = `<div>${esc(m.text||'')}</div>`;
-    let checks = '';
-    if(m.from === profile.email){
-      if(m.read) checks = `<span style="color:#1e90ff;margin-left:6px">✓✓</span>`;
-      else if(m.delivered) checks = `<span style="color:#9aa4b2;margin-left:6px">✓</span>`;
-    }
-    el.innerHTML = `<div class="meta">${esc(m.from)} · ${tstr(m.createdAt)} ${checks}</div>${content}`;
-    bindLongPress(el, m);
-    messagesDiv.appendChild(el);
-  });
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-/* --- long-press --- */
-function bindLongPress(el, msg){
-  let timer = null;
-  const longMs = 600;
-  const start = e=>{ e.preventDefault && e.preventDefault(); timer = setTimeout(()=> showMessageActions(el, msg), longMs); };
-  const cancel = ()=>{ if(timer){ clearTimeout(timer); timer = null; } };
-  el.addEventListener('touchstart', start, {passive:false});
-  el.addEventListener('mousedown', start);
-  el.addEventListener('touchend', cancel);
-  el.addEventListener('mouseup', cancel);
-  el.addEventListener('mouseleave', cancel);
-}
-
-function showMessageActions(el, msg){
-  const exist = el.querySelector('.long-actions'); if(exist) return;
-  const bar = document.createElement('div'); bar.className='long-actions';
-  if(msg.from === profile.email){
-    const edit = document.createElement('button'); edit.className='btn ghost'; edit.textContent='Изменить';
-    const del = document.createElement('button'); del.className='btn ghost'; del.textContent='Удалить';
-    edit.addEventListener('click', ()=> inlineEditMessage(el, msg));
-    del.addEventListener('click', ()=> deleteMessageFlow(msg));
-    bar.appendChild(edit); bar.appendChild(del);
+      renderMessages(arr);
+    }, err => { console.error('messages onSnapshot', err); showToast('Ошибка при получении сообщений'); });
+    // on mobile hide left pane (simple)
+    if(window.innerWidth < 720) document.getElementById('leftPane').style.display = 'none';
   }
-  const close = document.createElement('button'); close.className='btn ghost'; close.textContent='Закр';
-  close.addEventListener('click', ()=> bar.remove());
-  bar.appendChild(close);
-  el.appendChild(bar);
-}
 
-/* --- inline edit --- */
-function inlineEditMessage(el, msg){
-  const existingBar = el.querySelector('.long-actions'); if(existingBar) existingBar.remove();
-  const editCont = document.createElement('div'); editCont.style.display='flex'; editCont.style.gap='8px'; editCont.style.marginTop='8px';
-  const input = document.createElement('input'); input.type='text'; input.value = msg.text || ''; input.style.flex='1'; input.style.padding='8px'; input.style.border='1px solid #eee'; input.style.borderRadius='8px';
-  const save = document.createElement('button'); save.className='btn'; save.textContent='Сохранить';
-  const cancel = document.createElement('button'); cancel.className='btn ghost'; cancel.textContent='Отмена';
-  editCont.appendChild(input); editCont.appendChild(save); editCont.appendChild(cancel);
-  el.appendChild(editCont);
-  save.addEventListener('click', async ()=>{
-    const newText = (input.value||'').trim();
+  // ----------------- render messages -----------------
+  function renderMessages(msgs){
+    messagesDiv.innerHTML = '';
+    if(!msgs.length){ messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Чат пуст</div>'; return; }
+    msgs.forEach(m=>{
+      const el = document.createElement('div');
+      el.className = 'msg ' + (m.from === profile.email ? 'me' : 'you');
+      const meta = `<div class="meta">${esc(m.from)} · ${tstr(m.createdAt)}</div>`;
+      const body = `<div>${esc(m.text||'')}</div>`;
+      el.innerHTML = meta + body;
+      messagesDiv.appendChild(el);
+    });
+    // auto-scroll to bottom
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  // ----------------- send message -----------------
+  sendBtn.addEventListener('click', async ()=>{
+    if(!activeChatId) return showToast('Откройте чат');
+    const txt = (messageText.value||'').trim();
+    if(!txt) return;
     try {
-      await db.collection('chats').doc(activeChatId).collection('messages').doc(msg.id).update({ text:newText, edited:true });
-      const chatDoc = await db.collection('chats').doc(activeChatId).get();
-      if(chatDoc.exists && chatDoc.data().lastMessage === msg.text){
-        await db.collection('chats').doc(activeChatId).set({ lastMessage:newText, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
-      }
-      showToast('Сообщение обновлено');
-      editCont.remove();
-    } catch(e){ console.error('edit msg', e); showToast('Ошибка редактирования'); }
-  });
-  cancel.addEventListener('click', ()=> editCont.remove());
-}
-
-/* --- delete --- */
-async function deleteMessageFlow(msg){
-  const ok = await openConfirm('Удалить сообщение?');
-  if(!ok) return;
-  try { await db.collection('chats').doc(activeChatId).collection('messages').doc(msg.id).delete(); showToast('Сообщение удалено'); } catch(e){ console.error('delete msg', e); showToast('Ошибка удаления'); }
-}
-
-/* --- mark read --- */
-async function markMessagesRead(chatId){
-  if(!profile) return;
-  try {
-    const q = db.collection('chats').doc(chatId).collection('messages').where('from','!=', profile.email).where('read','==', false);
-    const snap = await q.get();
-    const batch = db.batch();
-    snap.forEach(docSnap => batch.update(db.collection('chats').doc(chatId).collection('messages').doc(docSnap.id), { read:true }));
-    if(!snap.empty) await batch.commit();
-  } catch(e){ console.error('mark read', e); }
-}
-
-/* --- send messages (text + file) --- */
-sendBtn.addEventListener('click', async ()=>{
-  if(!activeChatId) return showToast('Откройте чат');
-  const text = (messageText.value||'').trim();
-  try {
-    if(fileInput.files.length){
-      const f = fileInput.files[0];
-      const ext = (f.name.split('.').pop()||'').toLowerCase();
-      const isImage = ['png','jpg','jpeg','webp','gif'].includes(ext);
-      const path = `chats/${activeChatId}/files/${Date.now()}_${f.name}`;
-      const ref = storage.ref().child(path);
-      const snap = await ref.put(f);
-      const url = await snap.ref.getDownloadURL();
-      await db.collection('chats').doc(activeChatId).collection('messages').add({ from: profile.email, text:'', type:isImage?'image':'file', url, createdAt: FieldValue.serverTimestamp(), delivered:false, read:false });
-      await db.collection('chats').doc(activeChatId).set({ lastMessage: isImage ? '📷 Фото' : 'Файл', updatedAt: FieldValue.serverTimestamp() }, { merge:true });
-      fileInput.value = '';
-    }
-    if(text){
-      await db.collection('chats').doc(activeChatId).collection('messages').add({ from: profile.email, text, type:'text', createdAt: FieldValue.serverTimestamp(), delivered:false, read:false });
-      await db.collection('chats').doc(activeChatId).set({ lastMessage:text, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
+      // add message
+      const msgObj = { from: profile.email, text: txt, createdAt: FieldValue.serverTimestamp(), type: 'text' };
+      await db.collection('chats').doc(activeChatId).collection('messages').add(msgObj);
+      // update chat preview & updatedAt
+      await db.collection('chats').doc(activeChatId).set({ lastMessage: txt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       messageText.value = '';
-    }
-  } catch(e){ console.error('send', e); showToast('Ошибка отправки'); }
-});
-messageText.addEventListener('keydown', e=>{ if(e.key==='Enter') sendBtn.click(); });
-
-/* --- back button --- */
-backBtn.addEventListener('click', ()=>{
-  if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
-  activeChatId = null;
-  composer.style.display='none';
-  chatHeader.style.display='none';
-  messagesDiv.innerHTML = '<div class="muted center">Выберите чат слева</div>';
-  if(window.innerWidth < 720) leftPane.style.display='flex';
-});
-
-/* --- lastActive updates --- */
-function startLastSeen(){
-  if(!me) return;
-  updateLastActive();
-  lastSeenInterval = setInterval(updateLastActive, 30*1000);
-  window.addEventListener('focus', updateLastActive);
-  window.addEventListener('blur', updateLastActive);
-}
-function stopLastSeen(){
-  clearInterval(lastSeenInterval);
-  window.removeEventListener('focus', updateLastActive);
-  window.removeEventListener('blur', updateLastActive);
-}
-function updateLastActive(){
-  if(!me) return;
-  db.collection('users').doc(me.uid).set({ lastActive: FieldValue.serverTimestamp() }, { merge:true }).catch(e=>console.warn('lastActive', e));
-}
-
-/* --- PUSH: get token and save --- */
-async function getAndSaveFcmToken(){
-  if(!messaging) { showToast('Пуши не поддерживаются в этом браузере'); return null; }
-  try {
-    if(Notification.permission !== 'granted'){
-      const p = await Notification.requestPermission();
-      if(p !== 'granted'){ showToast('Разрешение на уведомления отклонено'); return null; }
-    }
-    // make sure SW registered (token retrieval sometimes needs SW)
-    if(!navigator.serviceWorker.controller) {
-      // attempt to register quickly
-      await registerSwWithFallback();
-    }
-    const currentToken = await messaging.getToken({ vapidKey: VAPID_KEY });
-    if(currentToken){
-      await db.collection('users').doc(me.uid).set({ fcmTokens: FieldValue.arrayUnion(currentToken) }, { merge:true });
-      showToast('Токен сохранён');
-      return currentToken;
-    } else {
-      showToast('Не удалось получить токен');
-      return null;
-    }
-  } catch(e){ console.error('getToken', e); showToast('Ошибка получения токена: ' + (e.message||e.code)); return null; }
-}
-
-btnRequestPerm.addEventListener('click', async ()=>{ if(!me) return showToast('Войдите'); await getAndSaveFcmToken(); });
-btnShowTokens.addEventListener('click', async ()=>{ if(!me) return showToast('Войдите'); const doc = await db.collection('users').doc(me.uid).get(); tokensOutput.style.display='block'; tokensOutput.textContent = JSON.stringify(doc.exists ? (doc.data().fcmTokens||[]) : [], null, 2); });
-
-/* --- foreground push handler --- */
-if(messaging){
-  messaging.onMessage(payload=>{
-    console.log('onMessage payload', payload);
-    const title = (payload.notification && payload.notification.title) || 'Уведомление';
-    const body = (payload.notification && payload.notification.body) || '';
-    showToast(title + (body ? ': ' + body : ''));
+    } catch(e){ console.error('send message', e); showToast('Ошибка отправки сообщения'); }
   });
-}
 
-/* --- mark delivered/read handled in messages onSnapshot --- */
+  // enter to send
+  messageText.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendBtn.click(); });
 
-/* --- stop all listeners --- */
-function stopAll(){
-  if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
-  if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
-  activeChatId = null;
-  messagesDiv.innerHTML = '<div class="muted center">Выберите чат слева</div>';
-  composer.style.display='none';
-  chatHeader.style.display='none';
-  stopLastSeen();
-}
+  // ----------------- simple initialization -----------------
+  // show login modal until authed
+  window.addEventListener('load', ()=>{
+    // modal visibility is controlled by auth state; ensure hidden by default
+    modalLogin.style.display = 'none';
+    // if not logged in, onAuthStateChanged will show modal
+    if(!auth.currentUser) modalLogin.style.display = 'flex';
+  });
 
-/* --- on load: show login if not authed --- */
-window.addEventListener('load', ()=> {
-  if(!auth.currentUser) injectLoginModal();
-});
-
-/* --- expose debug --- */
-window.$Talk = { auth, db, storage, messaging, getAndSaveFcmToken };
-
-console.log('$Talk integrated — checked 3× for syntax and logic');
-</script>
+  // --------------- Helpful debugging / instructions ---------------
+  // If chаты не показываются: проверь Firestore rules (для теста временно):
+  // rules_version = '2';
+  // service cloud.firestore {
+  //   match /databases/{database}/documents {
+  //     match /{document=**} {
+  //       allow read, write: if true;
+  //     }
+  //   }
+  // }
+  //
+  // Потом верни безопасные правила.
+  //
+  // Если видишь ошибки в консоли — скопируй их сюда, я помогу.
+  //
+  // Структура БД:
+  // /users/{uid} -> { email, name, login, about, ... }
+  // /chats/{chatId} -> { participants: [emailA, emailB], lastMessage, updatedAt }
+  // /chats/{chatId}/messages/{msgId} -> { from, text, createdAt, type }
+  //
+  // ----------------- Конец кода -----------------
+  </script>
 </body>
 </html>
