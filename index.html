@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>$Talk — мобильный + встроенные настройки</title>
+<title>$Talk — мобильный + встроенные настройки (кнопки исправлены)</title>
 <meta name="theme-color" content="#1e90ff" />
 <style>
 :root{
-  --primary:#1e90ff; --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --text:#111;
+  --primary:#1e90ff; --primary-dark:#1673d6; --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --text:#111;
   --user-bubble:#e6f0ff; --other-bubble:#f2f2f2;
 }
 *{box-sizing:border-box}
@@ -47,9 +47,43 @@ main{display:flex;height:calc(100vh - 56px);overflow:hidden}
 .composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:var(--card);align-items:center}
 .composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
 .file-btn{background:#f5f5f5;border-radius:10px;padding:8px;cursor:pointer;border:1px solid #eee}
-.btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
-.btn.ghost{background:#f5f5f5;color:var(--text)}
-.small-btn{background:#fff;border:1px solid #eee;padding:6px 8px;border-radius:6px;cursor:pointer}
+
+/* BUTTONS: improved contrast and hover states */
+.btn{
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .08s, box-shadow .12s, background .12s;
+  box-shadow: 0 2px 6px rgba(30,144,255,0.18);
+  font-weight:600;
+}
+.btn:hover{ transform: translateY(-1px); background: var(--primary-dark); box-shadow: 0 4px 12px rgba(30,144,255,0.2); }
+.btn:active{ transform: translateY(0); }
+
+.btn.small-btn{
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 6px rgba(30,144,255,0.12);
+  font-weight:600;
+}
+.btn.small-btn:hover{ background: var(--primary-dark); }
+
+.btn.ghost{
+  background: #fff;
+  color: var(--text);
+  border: 1px solid #e6e6e6;
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: none;
+  font-weight:600;
+}
+.btn.ghost:hover{ background:#f4f6f8; }
 
 /* drawer (menu) */
 .drawer{position:fixed;left:-360px;top:0;width:360px;height:100%;background:var(--card);box-shadow:4px 0 24px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
@@ -125,7 +159,7 @@ main{display:flex;height:calc(100vh - 56px);overflow:hidden}
     <div><label>Имя</label><input id="d_name" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px" /></div>
     <div style="margin-top:8px"><label>Логин (начинается с $)</label><input id="d_login" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px" /></div>
     <div style="margin-top:8px"><label>О себе (≤100)</label><textarea id="d_about" maxlength="100" rows="3" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:8px"><button id="d_save" class="btn">Сохранить</button><button id="d_logout" class="btn small-btn">Выйти</button></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><button id="d_save" class="btn">Сохранить</button><button id="d_logout" class="btn ghost">Выйти</button></div>
   </div>
 </div>
 <div id="overlay" class="overlay"></div>
@@ -177,18 +211,12 @@ main{display:flex;height:calc(100vh - 56px);overflow:hidden}
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ================= $Talk — final single-file
-   - Чаты по $логину (participants — массив логинов)
-   - Настройки встроены в drawer (три полоски). Свайп влево закрывает drawer.
-   - Левый стрелка в чате возвращает в список чатов; свайп вправо в чате тоже закрывает.
-   - Имя пользователя отображается вместо email.
-   - Проверка уникальности логина при сохранении.
-   - deliveredAt / readAt галочки.
-   - Edit / Delete сообщений (только для собственного сообщения).
-   Triple-checked: 3x syntax, ids, firebase fields, listeners, and mobile gestures.
+/* ================= $Talk — final single-file (buttons contrast fixed) =================
+   Вся логика оставлена прежней: авторизация, профиль, чаты по $логину, delivered/read, редактирование/удаление.
+   Я проверил соответствие всех id и что кнопки используют правильные классы (.btn / .btn.small-btn / .btn.ghost).
 */
 
-/* ---------------- Firebase config — вставь свои данные (использую твой конфиг) ---------------- */
+/* ---------------- Firebase config — используй свой конфиг (я оставил твой) ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
   authDomain: "talk-f1ff9.firebaseapp.com",
@@ -352,18 +380,15 @@ d_save.addEventListener('click', async ()=>{
   if(!login.startsWith('$')) return showToast('Логин должен начинаться с $');
   if(about.length > 100) return showToast('Описание ≤ 100');
   try{
-    // check uniqueness: users where login==login and id != me.uid
     const snap = await db.collection('users').where('login','==', login).get();
     let conflict = false;
     snap.forEach(doc => { if(doc.id !== me.uid) conflict = true; });
     if(conflict) return showToast('Такой логин уже существует');
-    // save
     await db.collection('users').doc(me.uid).set({ name, login, about, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
     profile = {...profile, name, login, about};
     nameDisplay.textContent = profile.name || me.email;
     showToast('Настройки сохранены');
     closeDrawer();
-    // restart chats listener because participants keys changed (we use login for participants)
     if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
     startChatsListener();
   } catch(e){ console.error('save settings', e); showToast('Ошибка сохранения'); }
@@ -423,7 +448,6 @@ async function createOrOpenChatWith(otherLogin){
   otherLogin = (otherLogin||'').trim();
   if(!otherLogin) return;
   try{
-    // try find existing chat that contains both logins
     const q = db.collection('chats').where('participants','array-contains', profile.login);
     const snap = await q.get();
     let found = null;
@@ -432,7 +456,6 @@ async function createOrOpenChatWith(otherLogin){
       if(Array.isArray(data.participants) && data.participants.includes(otherLogin)) found = { id:d.id, ...data };
     });
     if(found){ openChat(found.id); return; }
-    // create new chat
     const ref = await db.collection('chats').add({ participants: [profile.login, otherLogin], lastMessage: '', updatedAt: FieldValue.serverTimestamp() });
     openChat(ref.id);
   } catch(e){ console.error('createOrOpenChat', e); showToast('Ошибка создания чата'); }
@@ -444,31 +467,24 @@ function openChat(chatId){
   chatHeader.style.display = 'flex';
   composer.style.display = 'flex';
   messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Загрузка сообщений...</div>';
-  // set chat title (other user's login and profile)
   db.collection('chats').doc(chatId).get().then(async snap=>{
     if(!snap.exists) return;
     const data = snap.data();
     const otherLogin = (data.participants||[]).find(x=> x !== profile.login) || '';
     chatTitle.textContent = otherLogin;
-    // try fetch other user's public info
     const userSnap = await db.collection('users').where('login','==', otherLogin).limit(1).get();
     if(!userSnap.empty){
       const ud = userSnap.docs[0].data();
       chatTitle.textContent = ud.name || otherLogin;
       chatSub.textContent = ud.about || '';
-    } else {
-      chatSub.textContent = '';
-    }
+    } else { chatSub.textContent = ''; }
   }).catch(e=>console.error('chat meta', e));
 
-  // unsubscribe previous
   if(msgsUnsub) msgsUnsub();
   const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
   msgsUnsub = msgsRef.onSnapshot(async snapshot=>{
     const arr = []; snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
     renderMessages(arr);
-
-    // mark delivered for newly added messages (if from other user and not yet deliveredAt)
     snapshot.docChanges().forEach(async change=>{
       if(change.type === 'added'){
         const m = change.doc.data();
@@ -477,18 +493,13 @@ function openChat(chatId){
         }
       }
     });
-
-    // after rendering, mark read
     await markMessagesRead(chatId);
-  }, err=>{
-    console.error('messages snap err', err); showToast('Ошибка получения сообщений');
-  });
+  }, err=>{ console.error('messages snap err', err); showToast('Ошибка получения сообщений'); });
 
-  // mobile: hide left pane
   if(window.innerWidth < 720) leftPane.style.display = 'none';
 }
 
-/* ---------------- render messages with checks and edit/delete binding ---------------- */
+/* ---------------- render messages ---------------- */
 function renderMessages(msgs){
   messagesDiv.innerHTML = '';
   if(!msgs.length){ messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Чат пуст</div>'; return; }
@@ -500,7 +511,6 @@ function renderMessages(msgs){
     const metaHtml = `<div class="meta"><span>${esc(m.from)}</span> · <span>${tstr(m.createdAt)}</span>${checksHtml}</div>`;
     const bodyHtml = `<div>${esc(m.text||'')}</div>`;
     el.innerHTML = metaHtml + bodyHtml;
-    // bind long press / contextmenu for edit/delete
     bindMessageActions(el, m);
     messagesDiv.appendChild(el);
   });
@@ -523,10 +533,8 @@ function bindMessageActions(el, msg){
   el.addEventListener('contextmenu', start);
 }
 
-/* menu: edit or delete (only for my messages) */
 async function openMessageMenu(msg){
   if(msg.from !== profile.login) return;
-  // reuse confirm modal to show options
   confirmText.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:8px">
       <button id="__optEdit" class="btn">Изменить</button>
@@ -544,10 +552,7 @@ async function openMessageMenu(msg){
     closeModal(modalConfirm);
     const ok = await confirmDialog('Удалить сообщение?');
     if(!ok) return;
-    try{
-      await db.collection('chats').doc(activeChatId).collection('messages').doc(msg.id).delete();
-      showToast('Сообщение удалено');
-    } catch(e){ console.error('delete', e); showToast('Ошибка удаления'); }
+    try{ await db.collection('chats').doc(activeChatId).collection('messages').doc(msg.id).delete(); showToast('Сообщение удалено'); } catch(e){ console.error('delete', e); showToast('Ошибка удаления'); }
   };
   document.getElementById('__optClose').onclick = ()=> closeModal(modalConfirm);
 }
@@ -558,7 +563,6 @@ editSave.addEventListener('click', async ()=>{
   const nt = (editText.value||'').trim();
   try{
     await db.collection('chats').doc(activeChatId).collection('messages').doc(editingMessage.id).update({ text: nt, edited: true });
-    // update chat.lastMessage if it matched old
     const chatDoc = await db.collection('chats').doc(activeChatId).get();
     if(chatDoc.exists && chatDoc.data().lastMessage === editingMessage.text){
       await db.collection('chats').doc(activeChatId).set({ lastMessage: nt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
@@ -569,7 +573,7 @@ editSave.addEventListener('click', async ()=>{
 });
 editCancel.addEventListener('click', ()=>{ editingMessage = null; closeModal(modalEdit); });
 
-/* ---------------- mark messages read ---------------- */
+/* mark messages read */
 async function markMessagesRead(chatId){
   if(!profile) return;
   try{
@@ -587,7 +591,7 @@ async function markMessagesRead(chatId){
   } catch(e){ console.error('mark read', e); }
 }
 
-/* ---------------- send message ---------------- */
+/* send message */
 sendBtn.addEventListener('click', async ()=>{
   if(!activeChatId) return showToast('Откройте чат');
   const txt = (messageText.value||'').trim();
@@ -601,7 +605,7 @@ sendBtn.addEventListener('click', async ()=>{
 });
 messageText.addEventListener('keydown', e=>{ if(e.key === 'Enter') sendBtn.click(); });
 
-/* ---------------- back button and swipe to close chat ---------------- */
+/* back button & swipe to close chat */
 backBtn.addEventListener('click', ()=> closeChat());
 (function chatSwipeClose(){
   let startX=0, touching=false;
@@ -619,7 +623,7 @@ function closeChat(){
   if(window.innerWidth < 720) leftPane.style.display = 'block';
 }
 
-/* ---------------- view profile modal (click header title) ---------------- */
+/* view profile modal (click header title) */
 chatTitle.addEventListener('click', async ()=>{
   if(!activeChatId) return;
   try{
@@ -651,10 +655,9 @@ chatTitle.addEventListener('click', async ()=>{
   } catch(e){ console.error('view profile', e); showToast('Ошибка просмотра профиля'); }
 });
 
-/* ---------------- drawer profile / open settings buttons ---------------- */
+/* drawer profile/open settings */
 openProfileBtn.addEventListener('click', async ()=>{
   closeDrawer();
-  // open profile viewer for self
   profileViewer.innerHTML = `
     <div style="display:flex;gap:12px;align-items:center">
       <div style="width:84px;height:84;border-radius:12px;background:#eee;display:flex;align-items:center;justify-content:center">${esc((profile.name||profile.login||'').slice(0,2)).toUpperCase()}</div>
@@ -669,33 +672,28 @@ openProfileBtn.addEventListener('click', async ()=>{
   openModal(modalProfile);
   document.getElementById('pv_close_self').onclick = ()=> closeModal(modalProfile);
 });
-
 openSettingsBtn.addEventListener('click', ()=>{ /* drawer already shows settings fields */ });
 
-/* ---------------- close drawer on swipe left already implemented above ---------------- */
-
-/* ---------------- util: close modals on backdrop click ---------------- */
+/* close modal on backdrop click */
 document.querySelectorAll('.modal-back').forEach(el=>{
   el.addEventListener('click', (ev)=>{ if(ev.target === el) el.style.display = 'none'; });
 });
 
-/* ---------------- initial UI on load ---------------- */
+/* initial UI on load */
 window.addEventListener('load', ()=>{
   modalLogin.style.display = 'none';
   modalProfile.style.display = 'none';
   modalEdit.style.display = 'none';
   modalConfirm.style.display = 'none';
   overlay.classList.remove('show');
-  // show login if not authed
   if(!auth.currentUser) openModal(modalLogin);
 });
 
-/* ---------------- notes on Firestore structure ----------------
- - users/{uid} : { email, name, login (starts with $), about, ... }
- - chats/{chatId} : { participants: [loginA, loginB], lastMessage, updatedAt }
- - chats/{chatId}/messages/{msgId} : { from: login, text, createdAt, deliveredAt?, readAt?, edited? }
+/* notes:
+ - Buttons were updated: .btn, .btn.small-btn and .btn.ghost now have clear contrasting styles.
+ - Проверочные шаги: сопоставил все кнопки с классами, убедился, что видимые кнопки (Найти/Открыть, Войти, Зарегистрироваться) используют .btn или .btn.small-btn.
+ - Если где-то кнопка всё ещё "бледная" — пришли строку HTML кнопки (я поправлю класс).
 ---------------------------------------------------------------------------------------- */
-
 </script>
 </body>
 </html>
