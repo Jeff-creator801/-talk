@@ -1,146 +1,150 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>$Talk — v2 (mobile)</title>
-  <meta name="theme-color" content="#1e90ff">
-  <style>
-    /* Mobile-first styles */
-    :root{
-      --primary:#1e90ff;
-      --bg:#ffffff;
-      --text:#222;
-      --muted:#6b7280;
-      --user-bubble:#e6f0ff;
-      --other-bubble:#f2f2f2;
-      --radius:12px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial,sans-serif;color:var(--text)}
-    .app{height:100vh;display:flex;flex-direction:column}
-    header{display:flex;align-items:center;gap:10px;padding:12px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white}
-    .icon-btn{width:40px;height:40;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .title{font-weight:700;font-size:16px}
-    .top-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-    main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-    /* layout for larger screens */
-    @media(min-width:720px){ main{flex-direction:row} }
-    /* left panel */
-    .left{width:100%;max-width:420px;border-right:1px solid #eee;background:#fff;display:flex;flex-direction:column}
-    .search-row{display:flex;gap:8px;padding:10px;border-bottom:1px solid #eee;background:#fff}
-    .search-row input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-    .chats{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:#fafafa}
-    .chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:white;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,0.03)}
-    .ava{width:46px;height:46;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
-    .meta{flex:1}
-    .meta .name{font-weight:600}
-    .meta .last{color:var(--muted);font-size:13px}
-    .meta .time{font-size:12px;color:var(--muted);margin-left:6px}
-    /* chat area */
-    .chat-area{flex:1;display:flex;flex-direction:column;background:#fff}
-    .messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
-    .msg{max-width:78%;padding:10px;border-radius:12px;word-break:break-word}
-    .msg.me{align-self:flex-end;background:var(--user-bubble)}
-    .msg.you{align-self:flex-start;background:var(--other-bubble)}
-    .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:#fff}
-    .composer input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-    .btn{background:var(--primary);color:#fff;border:none;padding:10px;border-radius:10px;cursor:pointer}
-    .btn.ghost{background:#f5f5f5;color:var(--text)}
-    /* overlay drawer */
-    .drawer{position:fixed;left:-360px;top:0;width:360px;height:100%;background:#fff;box-shadow:4px 0 24px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
-    .drawer.open{left:0}
-    .overlay-click{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:35;display:none}
-    .overlay-click.show{display:block}
-    .field{margin-bottom:12px}
-    .field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
-    .field input,.field textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #eee}
-    /* login modal */
-    .overlay-modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:50}
-    .card{width:92%;max-width:420px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 8px 28px rgba(0,0,0,0.2)}
-    .muted{color:var(--muted);font-size:13px}
-    .center{text-align:center}
-    /* small helpers */
-    .checks{font-size:12px;color:var(--muted);margin-left:6px}
-    .check-grey{color:#9aa4b2}
-    .check-blue{color:#1e90ff}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>$Talk — chat (single file)</title>
+<meta name="theme-color" content="#1e90ff">
+<style>
+  :root{
+    --primary:#1e90ff; --bg:#f7f8fb; --card:#ffffff; --text:#111;
+    --muted:#6b7280; --user-bubble:#e6f0ff; --other-bubble:#f2f2f2;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial,sans-serif;color:var(--text)}
+  .app{height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;padding:12px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white}
+  .menu-btn{width:40px;height:40;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .title{font-weight:700;margin-left:10px}
+  main{flex:1;display:flex;overflow:hidden}
+  /* left pane (chat list) */
+  .left{width:360px;max-width:100%;border-right:1px solid #eee;background:var(--card);display:flex;flex-direction:column}
+  .search{padding:10px;border-bottom:1px solid #eee;display:flex;gap:8px}
+  .search input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
+  .chats{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+  .chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#fff;cursor:pointer}
+  .ava{width:44px;height:44;border-radius:10px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .meta{flex:1}
+  .name{font-weight:600}
+  .last{color:var(--muted);font-size:13px}
+  .time{font-size:12px;color:var(--muted)}
+  /* chat area */
+  .chat-area{flex:1;display:flex;flex-direction:column;background:var(--card)}
+  .chat-header{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:8px}
+  .back-btn{width:36px;height:36;border-radius:8px;background:rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .chat-title{font-weight:700}
+  .messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(#fff, #fafafa)}
+  .msg{max-width:78%;padding:10px;border-radius:12px;word-break:break-word}
+  .msg.me{align-self:flex-end;background:var(--user-bubble)}
+  .msg.you{align-self:flex-start;background:var(--other-bubble)}
+  .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:var(--card)}
+  .composer input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
+  .btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
+  .btn.ghost{background:#f5f5f5;color:var(--text)}
+  /* drawer/profile */
+  .drawer{position:fixed;left:-360px;top:0;width:360px;height:100%;background:var(--card);box-shadow:4px 0 24px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
+  .drawer.open{left:0}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;z-index:30}
+  .overlay.show{display:block}
+  /* login modal */
+  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:50}
+  .card{width:92%;max-width:420px;background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .field input, .field textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #eee}
+  .muted{color:var(--muted);font-size:13px}
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:60}
+  /* small screens */
+  @media(max-width:720px){
+    .left{width:100%;position:absolute;z-index:20;left:0;top:56px;height:calc(100% - 56px);transform:translateX(0)}
+    .chat-area{position:relative;z-index:10}
+  }
+</style>
 </head>
 <body>
   <div class="app">
     <header>
-      <div id="menuBtn" class="icon-btn" title="Меню">≡</div>
+      <div id="menuBtn" class="menu-btn" title="Меню">☰</div>
       <div class="title">$Talk</div>
-
-      <div class="top-right">
-        <div id="searchBtn" class="icon-btn" title="Поиск">🔍</div>
-        <div id="composeBtn" class="icon-btn" title="Новый чат">＋</div>
-      </div>
+      <div style="flex:1"></div>
+      <div id="userEmail" class="muted" style="font-size:14px"></div>
     </header>
 
     <main>
-      <div id="leftPanel" class="left" style="display:flex">
-        <div class="search-row">
-          <input id="searchInput" placeholder="Поиск по $логину или email" />
-          <button id="searchGo" class="btn ghost">Найти</button>
+      <!-- left: chat list -->
+      <div id="leftPane" class="left">
+        <div class="search">
+          <input id="searchInput" placeholder="Найти по $логину или email" />
+          <button id="searchBtn" class="btn ghost">Найти</button>
         </div>
-        <div id="chats" class="chats"></div>
+        <div id="chats" class="chats">
+          <!-- chat items go here -->
+        </div>
       </div>
 
-      <div id="chatArea" class="chat-area" style="display:flex;flex-direction:column">
-        <div id="messages" class="messages"><div class="center muted">Выберите чат</div></div>
+      <!-- chat area -->
+      <div class="chat-area">
+        <div id="chatHeader" class="chat-header" style="display:none">
+          <div id="backBtn" class="back-btn" title="Назад">←</div>
+          <div class="chat-title" id="chatTitle">Чат</div>
+        </div>
+
+        <div id="messages" class="messages">
+          <div class="muted center">Выберите чат слева или создайте новый</div>
+        </div>
+
         <div class="composer" id="composer" style="display:none">
-          <input id="msgText" placeholder="Написать сообщение..." />
+          <input id="messageInput" placeholder="Напишите сообщение..." />
           <button id="sendBtn" class="btn">Отправить</button>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Drawer (Profile / Settings) -->
-  <div id="overlayClick" class="overlay-click"></div>
-  <div id="drawer" class="drawer" role="dialog" aria-hidden="true">
+  <!-- drawer/profile -->
+  <div id="overlay" class="overlay"></div>
+  <div id="drawer" class="drawer" aria-hidden="true">
     <h3>Меню</h3>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
-      <button id="btnSettings" class="btn ghost">Настройки</button>
       <button id="btnProfile" class="btn ghost">Мой профиль</button>
+      <button id="btnSettings" class="btn ghost">Настройки</button>
     </div>
-
-    <hr style="margin:14px 0">
-
-    <div id="profilePanel" style="display:none">
-      <div class="field"><label>Email</label><input id="p_email" disabled /></div>
-      <div class="field"><label>Имя</label><input id="p_name" maxlength="30" /></div>
-      <div class="field"><label>Логин (начинается с $)</label><input id="p_login" /></div>
+    <hr style="margin:12px 0"/>
+    <div id="profilePanel" style="margin-top:8px">
+      <div class="field"><label>Email</label><input id="p_email" disabled/></div>
+      <div class="field"><label>Имя</label><input id="p_name" maxlength="30"/></div>
+      <div class="field"><label>Логин (начинается с $)</label><input id="p_login"/></div>
       <div class="field"><label>О себе (≤100)</label><textarea id="p_about" rows="3" maxlength="100"></textarea></div>
       <div style="display:flex;gap:8px"><button id="p_save" class="btn">Сохранить</button><button id="p_logout" class="btn ghost">Выйти</button></div>
     </div>
-
-    <div id="settingsPanel" style="display:none">
-      <div class="muted">Настройки (пока пусто)</div>
+    <div id="settingsPanel" style="display:none;margin-top:8px">
+      <div class="muted">Настройки пока пусты</div>
     </div>
   </div>
 
-  <!-- Login modal -->
-  <div id="loginModal" class="overlay-modal" style="display:none">
+  <!-- login modal -->
+  <div id="loginModal" class="modal" style="display:none">
     <div class="card">
-      <div style="display:flex;align-items:center;margin-bottom:12px">
-        <div style="width:44px;height:44;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700">$</div>
+      <div style="display:flex;align-items:center;margin-bottom:8px">
+        <div class="ava" style="width:44px;height:44;border-radius:8px"> $ </div>
         <div style="margin-left:10px">
           <div style="font-weight:700">$Talk</div>
-          <div class="muted">Войдите или зарегистрируйтесь</div>
+          <div class="muted">Вход или регистрация (email/password)</div>
         </div>
       </div>
-      <div class="field"><label>Email</label><input id="loginEmail" type="email" /></div>
-      <div class="field"><label>Пароль</label><input id="loginPass" type="password" /></div>
+      <div class="field"><label>Email</label><input id="loginEmail" type="email"/></div>
+      <div class="field"><label>Пароль</label><input id="loginPass" type="password"/></div>
       <div style="display:flex;gap:8px">
         <button id="btnLogin" class="btn">Войти</button>
         <button id="btnRegister" class="btn ghost">Зарегистрироваться</button>
       </div>
-      <div style="margin-top:10px" class="muted">Пароль ≥ 6 символов</div>
+      <div class="muted" style="margin-top:8px">Пароль не менее 6 символов</div>
     </div>
   </div>
+
+  <div id="toast" class="toast"></div>
 
   <!-- Firebase compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -148,18 +152,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
   <script>
-/* ================= $Talk v2 single-file =================
-   - Uses compat SDK so mobile browsers don't choke on modules
-   - Firestore structure:
-     /chats/{chatId} { participants: [emailA,emailB], lastMessage, updatedAt }
-     /chats/{chatId}/messages/{msgId} { from, text, createdAt, delivered, read }
-   - read/delivered flags:
-     - Sender creates message (delivered:false, read:false)
-     - Recipient's onSnapshot sees it and sets delivered:true (one check)
-     - When recipient opens chat, client sets read:true for unread messages (two checks)
-   ======================================================= */
+  /***** $Talk — single-file v2 with scrollable chat + back button *****/
 
-  // ---------- FIREBASE CONFIG (твой конфиг) ----------
+  // ---------- Firebase config (your values) ----------
   const firebaseConfig = {
     apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
     authDomain: "talk-f1ff9.firebaseapp.com",
@@ -171,20 +166,19 @@
     measurementId: "G-3KDE4QT7PF"
   };
 
-  // init
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-  const F = firebase.firestore.FieldValue;
+  const FieldValue = firebase.firestore.FieldValue;
 
-  // DOM refs
+  // DOM
   const loginModal = document.getElementById('loginModal');
   const btnLogin = document.getElementById('btnLogin');
   const btnRegister = document.getElementById('btnRegister');
   const loginEmail = document.getElementById('loginEmail');
   const loginPass = document.getElementById('loginPass');
 
-  const overlayClick = document.getElementById('overlayClick');
+  const overlay = document.getElementById('overlay');
   const drawer = document.getElementById('drawer');
   const menuBtn = document.getElementById('menuBtn');
   const btnProfile = document.getElementById('btnProfile');
@@ -200,189 +194,143 @@
   const p_logout = document.getElementById('p_logout');
 
   const searchInput = document.getElementById('searchInput');
-  const searchGo = document.getElementById('searchGo');
   const searchBtn = document.getElementById('searchBtn');
-  const composeBtn = document.getElementById('composeBtn');
-
   const chatsDiv = document.getElementById('chats');
+
+  const chatHeader = document.getElementById('chatHeader');
+  const backBtn = document.getElementById('backBtn');
+  const chatTitle = document.getElementById('chatTitle');
   const messagesDiv = document.getElementById('messages');
   const composer = document.getElementById('composer');
-  const msgText = document.getElementById('msgText');
+  const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
 
+  const userEmailEl = document.getElementById('userEmail');
+  const toastEl = document.getElementById('toast');
+  const leftPane = document.getElementById('leftPane');
+
   // state
-  let me = null; // firebase.User
-  let profile = null; // profile doc
+  let me = null;
+  let profile = null;
   let chatsUnsub = null;
   let msgsUnsub = null;
   let activeChatId = null;
 
   // helpers
   const esc = s => (s||'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
-  function tstr(ts){ if(!ts) return ''; try { if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); } catch(e){ return ''; } }
-  const toast = (t) => { alert(t); console.log('TOAST:', t); };
+  function tstr(ts){ if(!ts) return ''; try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); }catch(e){return'';} }
+  function showToast(t){ toastEl.innerText = t; toastEl.style.display='block'; setTimeout(()=> toastEl.style.display='none',3000); }
 
-  // ---------------- AUTH ----------------
-  function openLogin(){ loginModal.style.display = 'flex'; }
-  function closeLogin(){ loginModal.style.display = 'none'; }
-
+  // ---------- auth: login / register ----------
   btnLogin.addEventListener('click', async ()=>{
     const email = (loginEmail.value||'').trim();
     const pass = (loginPass.value||'').trim();
-    if(!email || !pass){ toast('Введите email и пароль'); return; }
+    if(!email||!pass){ showToast('Введите email и пароль'); return; }
     try {
       await auth.signInWithEmailAndPassword(email, pass);
-      closeLogin();
-    } catch(err){
-      console.error('login error', err);
-      toast(err.code + ' — ' + err.message);
-    }
+      loginModal.style.display='none';
+    } catch(err){ console.error('login',err); showToast(err.message || err.code); }
   });
 
   btnRegister.addEventListener('click', async ()=>{
     const email = (loginEmail.value||'').trim();
     const pass = (loginPass.value||'').trim();
-    if(!email || !pass){ toast('Введите email и пароль'); return; }
-    if(pass.length < 6){ toast('Пароль должен быть 6+ символов'); return; }
+    if(!email||!pass){ showToast('Введите email и пароль'); return; }
+    if(pass.length < 6){ showToast('Пароль >= 6 символов'); return; }
     try {
       const reg = await auth.createUserWithEmailAndPassword(email, pass);
-      // create profile
+      // create profile doc
       await db.collection('users').doc(reg.user.uid).set({
         email: reg.user.email,
         name: '',
         login: '$' + (reg.user.email.split('@')[0].slice(0,8)),
         about: '',
-        createdAt: F.serverTimestamp()
+        createdAt: FieldValue.serverTimestamp()
       }, { merge: true });
-      closeLogin();
-      toast('Аккаунт создан');
-    } catch(err){
-      console.error('register error', err);
-      toast(err.code + ' — ' + err.message);
-    }
+      loginModal.style.display='none'; showToast('Аккаунт создан');
+    } catch(err){ console.error('register',err); showToast(err.message || err.code); }
   });
 
-  // onAuthState
+  // onAuth change
   auth.onAuthStateChanged(async user=>{
     if(user){
       me = user;
-      closeLogin();
+      userEmailEl.textContent = user.email;
+      loginModal.style.display='none';
       await loadProfile();
-      startChats();
-      renderUIState();
-      console.log('Logged in:', me.email);
+      startChatsListener();
     } else {
-      me = null;
-      profile = null;
-      stopAll();
-      renderUIState();
-      openLogin();
-      console.log('Logged out');
+      me = null; profile = null;
+      stopAllListeners();
+      showLogin();
     }
   });
 
-  // ---------------- PROFILE ----------------
+  function showLogin(){ loginModal.style.display='flex'; userEmailEl.textContent=''; chatsDiv.innerHTML=''; messagesDiv.innerHTML='<div class="muted center">Выберите чат слева</div>'; composer.style.display='none'; chatHeader.style.display='none'; }
+
+  // ---------- profile ----------
   async function loadProfile(){
     if(!me) return;
-    const docRef = db.collection('users').doc(me.uid);
-    const snap = await docRef.get();
-    if(snap.exists){
-      profile = snap.data();
-    } else {
-      const base = { email: me.email, name:'', login: '$' + (me.email.split('@')[0].slice(0,8)), about:'', createdAt: F.serverTimestamp() };
-      await docRef.set(base, { merge: true });
-      profile = base;
-    }
-    // sync UI
-    p_email.value = profile.email || me.email;
-    p_name.value = profile.name || '';
-    p_login.value = profile.login || ('$' + (me.email.split('@')[0].slice(0,8)));
-    p_about.value = profile.about || '';
+    try {
+      const snap = await db.collection('users').doc(me.uid).get();
+      if(snap.exists) profile = snap.data();
+      else {
+        const base = { email: me.email, name:'', login:'$'+(me.email.split('@')[0].slice(0,8)), about:'', createdAt: FieldValue.serverTimestamp() };
+        await db.collection('users').doc(me.uid).set(base, { merge: true });
+        profile = base;
+      }
+      p_email.value = profile.email || me.email;
+      p_name.value = profile.name || '';
+      p_login.value = profile.login || ('$'+(me.email.split('@')[0].slice(0,8)));
+      p_about.value = profile.about || '';
+    } catch(e){ console.error('loadProfile', e); showToast('Ошибка загрузки профиля'); }
   }
 
   p_save.addEventListener('click', async ()=>{
-    if(!me) return toast('Сначала войдите');
+    if(!me) return showToast('Сначала войдите');
     const name = (p_name.value||'').trim();
     const login = (p_login.value||'').trim();
     const about = (p_about.value||'').trim();
-    if(!login.startsWith('$')) return toast('Логин должен начинаться с $');
-    if(about.length > 100) return toast('Опис. ≤ 100');
+    if(!login.startsWith('$')) return showToast('Логин должен начинаться с $');
+    if(about.length>100) return showToast('Описание ≤ 100 символов');
     try {
-      await db.collection('users').doc(me.uid).set({ name, login, about, updatedAt: F.serverTimestamp() }, { merge: true });
+      await db.collection('users').doc(me.uid).set({ name, login, about, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       profile = { ...profile, name, login, about };
-      toast('Профиль сохранён');
-    } catch(e){ console.error('save profile', e); toast('Ошибка сохранения'); }
+      showToast('Профиль сохранён');
+      closeDrawer();
+    } catch(e){ console.error('saveProfile', e); showToast('Ошибка сохранения'); }
   });
 
-  p_logout.addEventListener('click', async ()=>{
-    if(confirm('Выйти?')) { try{ await auth.signOut(); } catch(e){ console.error(e); toast('Ошибка выхода'); } }
-  });
+  p_logout.addEventListener('click', async ()=>{ if(confirm('Выйти?')){ try{ await auth.signOut(); } catch(e){ console.error(e); showToast('Ошибка выхода'); } } });
 
-  // ---------------- UI state ----------------
-  function renderUIState(){
-    // drawer default view profile
-    profilePanel.style.display = 'block';
-    settingsPanel.style.display = 'none';
-    // show/hide composer
-    composer.style.display = activeChatId ? 'flex' : 'none';
-  }
-
-  // drawer open/close and swipe-to-close
-  menuBtn.addEventListener('click', ()=> { drawer.classList.add('open'); overlayClick.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
-  overlayClick.addEventListener('click', closeDrawer);
-  function closeDrawer(){ drawer.classList.remove('open'); overlayClick.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
-
-  // swipe to close (touch)
-  (function addDrawerSwipe(){
-    let startX = 0, curX = 0, touching = false;
-    drawer.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; touching=true; });
-    drawer.addEventListener('touchmove', (e)=>{ if(!touching) return; curX = e.touches[0].clientX; const delta = curX - startX; if(delta < -30){ closeDrawer(); touching=false; } });
-    drawer.addEventListener('touchend', ()=>{ touching=false; });
-  })();
+  // ---------- drawer open/close ----------
+  menuBtn.addEventListener('click', ()=>{ drawer.classList.add('open'); overlay.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
+  overlay.addEventListener('click', closeDrawer);
+  function closeDrawer(){ drawer.classList.remove('open'); overlay.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
 
   btnProfile.addEventListener('click', ()=>{ profilePanel.style.display='block'; settingsPanel.style.display='none'; });
   btnSettings.addEventListener('click', ()=>{ profilePanel.style.display='none'; settingsPanel.style.display='block'; });
 
-  // ---------------- SEARCH / CREATE CHAT ----------------
-  // search by login prefix or full email
-  searchGo.addEventListener('click', async ()=>{
+  // ---------- search/create chat ----------
+  searchBtn.addEventListener('click', async ()=>{
     const q = (searchInput.value||'').trim();
-    if(!q) return toast('Введите $логин или email');
+    if(!q) return showToast('Введите $логин или email');
     if(q.startsWith('$')){
-      // search users by login prefix
+      // find user by login prefix
       try {
-        const start = q;
-        const end = q + '\uf8ff';
-        const usersRef = db.collection('users').orderBy('login').startAt(start).endAt(end);
-        const snap = await usersRef.get();
-        if(snap.empty) return toast('Пользователь не найден');
-        // if multiple, open first
+        const start = q; const end = q + '\uf8ff';
+        const snap = await db.collection('users').orderBy('login').startAt(start).endAt(end).limit(10).get();
+        if(snap.empty) return showToast('Не найдено');
         const userDoc = snap.docs[0].data();
-        await createOrOpenChatWith(userDoc.email);
-      } catch(e){ console.error('search login', e); toast('Ошибка поиска'); }
+        createOrOpenChatWith(userDoc.email);
+      } catch(e){ console.error('search', e); showToast('Ошибка поиска'); }
     } else {
-      // treat as email
-      await createOrOpenChatWith(q);
+      createOrOpenChatWith(q);
     }
   });
 
-  searchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') searchGo.click(); });
-  searchBtn.addEventListener('click', ()=> { document.getElementById('searchInput').focus(); });
-
-  composeBtn.addEventListener('click', async ()=>{
-    const email = prompt('Email пользователя для нового чата (или $логин):');
-    if(!email) return;
-    if(email.startsWith('$')){
-      // find user
-      const start = email; const end = email + '\uf8ff';
-      const snap = await db.collection('users').orderBy('login').startAt(start).endAt(end).get();
-      if(snap.empty) return toast('Пользователь не найден');
-      createOrOpenChatWith(snap.docs[0].data().email);
-    } else createOrOpenChatWith(email.trim());
-  });
-
-  // ---------------- Chats list ----------------
-  async function startChats(){
+  // ---------- chats listener ----------
+  function startChatsListener(){
     if(!profile || !profile.email) return;
     if(chatsUnsub) chatsUnsub();
     const q = db.collection('chats').where('participants','array-contains', profile.email).orderBy('updatedAt','desc');
@@ -390,12 +338,12 @@
       const arr = [];
       snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
       renderChats(arr);
-    }, err => { console.error('chats snap', err); toast('Ошибка при получении чатов'); });
+    }, err => { console.error('chats snap', err); showToast('Ошибка при получении чатов'); });
   }
 
   function renderChats(chats){
     chatsDiv.innerHTML = '';
-    if(!chats || !chats.length){ chatsDiv.innerHTML = '<div class="muted" style="padding:12px">Нет чатов</div>'; return; }
+    if(!chats || !chats.length){ chatsDiv.innerHTML = '<div class="muted" style="padding:12px">Нет чатов — нажмите «Найти»</div>'; return; }
     chats.forEach(c=>{
       const other = (c.participants||[]).find(x=> x !== profile.email) || 'Неизвестный';
       const item = document.createElement('div');
@@ -408,13 +356,13 @@
     });
   }
 
-  // ---------------- Create / Open chat ----------------
+  // ---------- create or open chat ----------
   async function createOrOpenChatWith(email){
-    if(!profile) return toast('Сначала войдите');
+    if(!profile) return showToast('Сначала войдите');
     email = (email||'').trim();
     if(!email) return;
     try {
-      // find existing chat where both participants present
+      // find existing chat
       const q = db.collection('chats').where('participants','array-contains', profile.email);
       const snap = await q.get();
       let found = null;
@@ -424,58 +372,65 @@
       });
       if(found){ openChat(found.id); return; }
       // create new chat
-      const ref = await db.collection('chats').add({ participants:[profile.email, email], lastMessage:'', updatedAt: F.serverTimestamp() });
+      const ref = await db.collection('chats').add({ participants:[profile.email, email], lastMessage:'', updatedAt: FieldValue.serverTimestamp() });
       openChat(ref.id);
-    } catch(e){ console.error('create/open chat', e); toast('Ошибка создания/открытия чата'); }
+    } catch(e){ console.error('createOrOpen', e); showToast('Ошибка создания чата'); }
   }
 
-  // ---------------- Open chat & messages ----------------
+  // ---------- open chat ----------
   function openChat(chatId){
     activeChatId = chatId;
-    renderUIState();
-    // unsubscribe old listener
+    composer.style.display = 'flex';
+    chatHeader.style.display = 'flex';
+    // show chat title (get other participant)
+    db.collection('chats').doc(chatId).get().then(snap=>{
+      const data = snap.data();
+      const other = (data.participants||[]).find(x=> x !== profile.email) || 'Чат';
+      chatTitle.textContent = other;
+    }).catch(e=>console.error(e));
+    // unsubscribe old messages
     if(msgsUnsub) msgsUnsub();
-    // load messages ordered
+    // subscribe to messages
     const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
     msgsUnsub = msgsRef.onSnapshot(snapshot=>{
       const arr = [];
       snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
       renderMessages(arr);
-      // For any newly seen messages from others, mark delivered=true
+      // mark delivered for new messages from others
       snapshot.docChanges().forEach(change=>{
-        if(change.type === 'added'){
+        if(change.type==='added'){
           const m = change.doc.data();
           if(m.from !== profile.email && !m.delivered){
-            // mark delivered
             db.collection('chats').doc(chatId).collection('messages').doc(change.doc.id).update({ delivered:true }).catch(e=>console.error('mark delivered',e));
           }
         }
       });
-      // If user currently viewing this chat, mark unread as read
+      // if viewing chat, mark unread -> read
       markMessagesRead(chatId);
-    }, err => { console.error('msgs snap', err); toast('Ошибка при получении сообщений'); });
-
-    // scroll to bottom after a short delay when messages render
-    setTimeout(()=> messagesDiv.scrollTop = messagesDiv.scrollHeight, 150);
+    }, err=>{ console.error('msgs snap', err); showToast('Ошибка сообщений'); });
+    // on small screens hide left pane
+    if(window.innerWidth < 720) leftPane.style.display='none';
   }
 
+  // render messages and ensure scroll works
   function renderMessages(msgs){
     messagesDiv.innerHTML = '';
-    if(!msgs.length){ messagesDiv.innerHTML = '<div class="center muted">Чат пуст</div>'; return; }
+    if(!msgs.length){ messagesDiv.innerHTML = '<div class="muted center">Чат пуст</div>'; return; }
     msgs.forEach(m=>{
       const el = document.createElement('div');
       el.className = (m.from === profile.email) ? 'msg me' : 'msg you';
-      // checks: one gray check = delivered true, two blue checks = read true
+      // checks
       let checks = '';
       if(m.from === profile.email){
-        if(m.read) checks = `<span class="checks check-blue">✓✓</span>`;
-        else if(m.delivered) checks = `<span class="checks check-grey">✓</span>`;
+        if(m.read) checks = `<span style="color:#1e90ff;margin-left:8px">✓✓</span>`;
+        else if(m.delivered) checks = `<span style="color:#9aa4b2;margin-left:8px">✓</span>`;
       }
       el.innerHTML = `<div class="meta">${esc(m.from)} · ${tstr(m.createdAt)} ${checks}</div><div>${esc(m.text)}</div>`;
       messagesDiv.appendChild(el);
     });
     // auto-scroll to bottom
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    // allow user to scroll up and see history — container has overflow:auto
   }
 
   // mark unread messages as read when opening chat
@@ -486,67 +441,64 @@
       const snap = await msgsRef.get();
       const batch = db.batch();
       snap.forEach(docSnap => {
-        batch.update(doc(db.collection('chats').doc(chatId).collection('messages').doc(docSnap.id)), { read:true });
+        batch.update(db.collection('chats').doc(chatId).collection('messages').doc(docSnap.id), { read:true });
       });
       if(!snap.empty) await batch.commit();
-    } catch(e){ console.error('markMessagesRead', e); }
+    } catch(e){ console.error('mark read', e); }
   }
 
-  // ---------------- Send message ----------------
+  // ---------- send message ----------
   sendBtn.addEventListener('click', async ()=>{
-    const text = (msgText.value||'').trim();
+    const text = (messageInput.value||'').trim();
     if(!text) return;
-    if(!activeChatId) return toast('Откройте чат');
+    if(!activeChatId) return showToast('Откройте чат');
     try {
-      // add message with flags
       await db.collection('chats').doc(activeChatId).collection('messages').add({
         from: profile.email,
         text,
-        createdAt: F.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
         delivered: false,
         read: false
       });
-      // update chat meta
-      await db.collection('chats').doc(activeChatId).set({ lastMessage:text, updatedAt: F.serverTimestamp() }, { merge: true });
-      msgText.value = '';
-    } catch(e){ console.error('send msg', e); toast('Ошибка отправки'); }
+      await db.collection('chats').doc(activeChatId).set({ lastMessage: text, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      messageInput.value = '';
+    } catch(e){ console.error('send', e); showToast('Ошибка отправки'); }
   });
 
-  // allow Enter to send
-  msgText.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendBtn.click(); });
+  messageInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendBtn.click(); });
 
-  // ---------------- Utilities ----------------
-  function stopAll(){
+  // ---------- close chat (back arrow) ----------
+  backBtn.addEventListener('click', ()=>{
+    // unsubscribe messages
+    if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
+    activeChatId = null;
+    composer.style.display='none';
+    chatHeader.style.display='none';
+    messagesDiv.innerHTML = '<div class="muted center">Выберите чат слева</div>';
+    // restore left pane on small screens
+    if(window.innerWidth < 720) leftPane.style.display='flex';
+  });
+
+  // ---------- utilities ----------
+  function stopAllListeners(){
     if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
     if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
     activeChatId = null;
-    messagesDiv.innerHTML = '<div class="center muted">Выберите чат</div>';
+  }
+
+  function stopAll(){
+    stopAllListeners();
     chatsDiv.innerHTML = '';
+    messagesDiv.innerHTML = '<div class="muted center">Выберите чат слева</div>';
+    composer.style.display='none';
+    chatHeader.style.display='none';
   }
 
-  // ---------------- Initial UI events ----------------
-  // overlay click will close drawer if open
-  overlayClick.addEventListener('click', closeDrawer);
-  // clicking outside messages shouldn't block scroll — nothing else needed
+  // ---------- expose debug helpers ----------
+  window.$TalkDebug = { auth, db, meProfile: ()=>profile, openChat, createOrOpenChatWith };
 
-  // small adaptive behavior: hide left panel on very small screens when chat open
-  function adjustLayout(){
-    const width = window.innerWidth;
-    const leftPanel = document.getElementById('leftPanel');
-    if(width < 720 && activeChatId){
-      leftPanel.style.display = 'none';
-    } else {
-      leftPanel.style.display = 'flex';
-    }
-  }
-  window.addEventListener('resize', adjustLayout);
-  setInterval(adjustLayout, 500);
+  console.log('$Talk loaded');
 
-  // expose debug
-  window.$TalkDebug = { auth, db, meProfile: ()=> profile, openChat, createOrOpenChatWith };
-
-  // done
-  console.log('$Talk v2 loaded');
   </script>
 </body>
 </html>
