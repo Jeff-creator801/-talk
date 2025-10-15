@@ -1,222 +1,192 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>$Talk — мобильный + встроенные настройки (кнопки исправлены)</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>$Talk — Firebase (полнофункц.)</title>
 <meta name="theme-color" content="#1e90ff" />
 <style>
 :root{
-  --primary:#1e90ff; --primary-dark:#1673d6; --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --text:#111;
-  --user-bubble:#e6f0ff; --other-bubble:#f2f2f2;
+  --primary:#1e90ff; --primary-strong:#1673d6; --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --text:#111;
+  --bubble-me:#dbeafe; --bubble-you:#f2f3f5; --danger:#ff4d4f;
+}
+[data-theme="dark"]{
+  --primary:#4aa3ff; --primary-strong:#2b7fe8; --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --text:#e6eef8;
+  --bubble-me:#08306b; --bubble-you:#15202b; --danger:#ff7575;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--text)}
-header{height:56px;background:linear-gradient(90deg,var(--primary),#3fb0ff);color:white;display:flex;align-items:center;padding:8px 12px;gap:12px}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* header */
+.header{height:56px;background:linear-gradient(90deg,var(--primary),var(--primary-strong));color:white;display:flex;align-items:center;padding:8px 12px;gap:12px}
 .menu-btn{width:40px;height:40;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .title{font-weight:700;font-size:18px}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.name-display{font-size:14px}
-main{display:flex;height:calc(100vh - 56px);overflow:hidden}
+.theme-toggle{background:transparent;border:1px solid rgba(255,255,255,0.18);color:white;padding:6px 8px;border-radius:8px;cursor:pointer}
 
-/* left pane (chats + menu inside drawer) */
-.left{width:340px;max-width:100%;border-right:1px solid #eee;background:var(--card);display:flex;flex-direction:column}
-.search{padding:10px;border-bottom:1px solid #eee;display:flex;gap:8px}
-.search input{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
+/* layout */
+.main{display:flex;flex:1;overflow:hidden}
+.left{width:320px;max-width:100%;border-right:1px solid rgba(0,0,0,0.06);background:var(--card);display:flex;flex-direction:column}
+.search{padding:10px;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;gap:8px}
+.search input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:transparent;color:var(--text)}
 .chats{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
-.chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#fff;cursor:pointer}
+.chat-item{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;background:var(--card);cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,0.03)}
 .ava{width:44px;height:44;border-radius:10px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 44px;overflow:hidden}
-.ava img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 .meta{flex:1}
-.name{font-weight:600}
-.last{color:var(--muted);font-size:13px}
+.name{font-weight:700}
+.last{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .time{font-size:12px;color:var(--muted)}
+.badge{background:var(--danger);color:#fff;padding:3px 7px;border-radius:999px;font-size:12px;margin-left:8px}
 
 /* chat area */
 .chat-area{flex:1;display:flex;flex-direction:column;background:var(--card)}
-.chat-header{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:8px}
+.chat-header{display:flex;align-items:center;padding:10px;border-bottom:1px solid rgba(0,0,0,0.04);gap:8px}
 .back-btn{width:36px;height:36;border-radius:8px;background:rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .chat-title{font-weight:700;cursor:pointer}
 .chat-sub{font-size:12px;color:var(--muted)}
-.messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(#fff,#fafafa);-webkit-overflow-scrolling:touch}
+.messages{flex:1;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(var(--card),var(--bg));-webkit-overflow-scrolling:touch}
 .msg{max-width:78%;padding:10px;border-radius:12px;word-break:break-word;position:relative}
-.msg.me{align-self:flex-end;background:var(--user-bubble)}
-.msg.you{align-self:flex-start;background:var(--other-bubble)}
+.msg.me{align-self:flex-end;background:var(--bubble-me)}
+.msg.you{align-self:flex-start;background:var(--bubble-you)}
 .msg .meta{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .msg .checks{font-weight:700;margin-left:6px;color:var(--muted)}
-.composer{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:var(--card);align-items:center}
-.composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid #eee}
-.file-btn{background:#f5f5f5;border-radius:10px;padding:8px;cursor:pointer;border:1px solid #eee}
+.sticker{font-size:36px;line-height:1}
 
-/* BUTTONS: improved contrast and hover states */
-.btn{
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform .08s, box-shadow .12s, background .12s;
-  box-shadow: 0 2px 6px rgba(30,144,255,0.18);
-  font-weight:600;
-}
-.btn:hover{ transform: translateY(-1px); background: var(--primary-dark); box-shadow: 0 4px 12px rgba(30,144,255,0.2); }
-.btn:active{ transform: translateY(0); }
+/* composer */
+.composer{display:flex;padding:10px;gap:8px;border-top:1px solid rgba(0,0,0,0.04);background:var(--card);align-items:center}
+.composer input[type="text"]{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:transparent;color:var(--text)}
+.btn{background: var(--primary);color: #fff;border: none;padding: 10px 12px;border-radius: 10px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text)}
+.small{padding:8px 10px;font-size:14px}
 
-.btn.small-btn{
-  background: var(--primary);
-  color: #fff;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: none;
-  box-shadow: 0 2px 6px rgba(30,144,255,0.12);
-  font-weight:600;
-}
-.btn.small-btn:hover{ background: var(--primary-dark); }
-
-.btn.ghost{
-  background: #fff;
-  color: var(--text);
-  border: 1px solid #e6e6e6;
-  padding: 8px 10px;
-  border-radius: 8px;
-  box-shadow: none;
-  font-weight:600;
-}
-.btn.ghost:hover{ background:#f4f6f8; }
-
-/* drawer (menu) */
+/* drawer */
 .drawer{position:fixed;left:-360px;top:0;width:360px;height:100%;background:var(--card);box-shadow:4px 0 24px rgba(0,0,0,0.12);padding:14px;transition:left .22s;z-index:40}
 .drawer.open{left:0}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;z-index:30}
 .overlay.show{display:block}
-
-/* modals & toasts */
 .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:100}
-.modal{background:#fff;padding:16px;border-radius:10px;max-width:420px;width:92%}
+.modal{background:var(--card);padding:16px;border-radius:10px;max-width:420px;width:92%}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:200}
 
-/* responsive / mobile-first */
+/* sticker panel */
+.sticker-panel{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:transparent}
+.sticker-btn{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;border:1px solid rgba(0,0,0,0.04);background:var(--card)}
+
+/* small screens */
 @media(max-width:720px){
   .left{position:absolute;left:0;top:56px;bottom:0;background:var(--card);z-index:20}
   .drawer{width:92%}
-  .messages{padding:8px}
+  .chat-title{font-size:16px}
 }
 </style>
 </head>
 <body>
-
-<header>
-  <div id="menuBtn" class="menu-btn" title="Меню">☰</div>
-  <div class="title">$Talk</div>
-  <div class="header-right">
-    <div id="nameDisplay" class="name-display">Гость</div>
-  </div>
-</header>
-
-<main>
-  <!-- left pane (chat list) -->
-  <div id="leftPane" class="left">
-    <div class="search">
-      <input id="searchInput" placeholder="$логин (например $alex)" />
-      <button id="newChatBtn" class="btn small-btn">Открыть</button>
+<div class="app" id="app" data-theme="light">
+  <div class="header">
+    <div id="menuBtn" class="menu-btn" title="Меню">☰</div>
+    <div class="title">$Talk</div>
+    <div class="header-right">
+      <button id="themeToggle" class="theme-toggle" title="Сменить тему">Тема</button>
+      <div id="userName" style="min-width:90px;text-align:right">Гость</div>
     </div>
-    <div id="chats" class="chats"></div>
   </div>
 
-  <!-- chat area -->
-  <div class="chat-area" id="chatArea">
-    <div id="chatHeader" class="chat-header" style="display:none">
-      <div id="backBtn" class="back-btn">←</div>
-      <div>
-        <div id="chatTitle" class="chat-title">Чат</div>
-        <div id="chatSub" class="chat-sub"></div>
+  <div class="main">
+    <div id="leftPane" class="left">
+      <div class="search">
+        <input id="searchInput" placeholder="$логин (например $alex)" />
+        <button id="newChatBtn" class="btn small">Открыть</button>
+      </div>
+      <div id="chats" class="chats"></div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div id="chatHeader" class="chat-header" style="display:none">
+        <div id="backBtn" class="back-btn">←</div>
+        <div>
+          <div id="chatTitle" class="chat-title">Чат</div>
+          <div id="chatSub" class="chat-sub"></div>
+        </div>
+      </div>
+
+      <div id="messages" class="messages">
+        <div style="color:var(--muted);padding:12px">Выберите чат слева или найдите пользователя по $логину</div>
+      </div>
+
+      <div id="composer" class="composer" style="display:none">
+        <button id="stickerToggle" class="btn ghost small">😀</button>
+        <input id="messageText" type="text" placeholder="Напишите сообщение..." />
+        <button id="sendBtn" class="btn">Отправить</button>
       </div>
     </div>
+  </div>
 
-    <div id="messages" class="messages">
-      <div style="color:var(--muted);padding:12px">Выберите чат слева или найдите пользователя по $логину</div>
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <h3>Меню</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+      <button id="openProfileBtn" class="btn ghost">Мой профиль</button>
+      <button id="openSettingsBtn" class="btn ghost">Настройки</button>
+      <button id="walletBtn" class="btn ghost">Кошелёк (скоро)</button>
     </div>
 
-    <div id="composer" class="composer" style="display:none">
-      <input id="messageText" type="text" placeholder="Напишите сообщение..." />
-      <button id="sendBtn" class="btn">Отправить</button>
+    <hr style="margin:12px 0"/>
+
+    <div id="profilePanel" style="margin-top:8px">
+      <div><label>Имя</label><input id="d_name" style="width:100%;padding:8px;border:1px solid rgba(0,0,0,0.06);border-radius:8px" /></div>
+      <div style="margin-top:8px"><label>Логин (начинается с $)</label><input id="d_login" style="width:100%;padding:8px;border:1px solid rgba(0,0,0,0.06);border-radius:8px" /></div>
+      <div style="margin-top:8px"><label>О себе (≤100)</label><textarea id="d_about" maxlength="100" rows="3" style="width:100%;padding:8px;border:1px solid rgba(0,0,0,0.06);border-radius:8px"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="avatarInput" type="file" accept="image/*" style="flex:1"/>
+        <button id="d_save" class="btn">Сохранить</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px"><button id="d_logout" class="btn ghost">Выйти</button></div>
     </div>
   </div>
-</main>
+  <div id="overlay" class="overlay"></div>
 
-<!-- drawer (встроенные настройки + профиль) -->
-<div id="drawer" class="drawer" aria-hidden="true">
-  <h3>Меню</h3>
-  <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
-    <button id="openProfileBtn" class="btn ghost">Мой профиль</button>
-    <button id="openSettingsBtn" class="btn ghost">Настройки</button>
-  </div>
-
-  <hr style="margin:12px 0"/>
-
-  <div id="profilePanel" style="margin-top:8px">
-    <div><label>Имя</label><input id="d_name" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px" /></div>
-    <div style="margin-top:8px"><label>Логин (начинается с $)</label><input id="d_login" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px" /></div>
-    <div style="margin-top:8px"><label>О себе (≤100)</label><textarea id="d_about" maxlength="100" rows="3" style="width:100%;padding:8px;border:1px solid #eee;border-radius:8px"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:8px"><button id="d_save" class="btn">Сохранить</button><button id="d_logout" class="btn ghost">Выйти</button></div>
-  </div>
-</div>
-<div id="overlay" class="overlay"></div>
-
-<!-- modals -->
-<div id="modalLogin" class="modal-back">
-  <div class="modal">
-    <h3>Вход / Регистрация</h3>
-    <div style="margin-top:8px"><input id="loginEmail" placeholder="Email" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
-    <div style="margin-top:8px"><input id="loginPass" placeholder="Пароль (6+)" type="password" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="btnLogin" class="btn">Войти</button>
-      <button id="btnRegister" class="btn small-btn">Зарегистрироваться</button>
-    </div>
-    <div style="margin-top:10px;color:var(--muted)">Логин после регистрации можно изменить в настройках.</div>
-  </div>
-</div>
-
-<div id="modalProfile" class="modal-back">
-  <div class="modal" id="profileViewer"></div>
-</div>
-
-<div id="modalEdit" class="modal-back">
-  <div class="modal">
-    <h3>Редактировать сообщение</h3>
-    <input id="editText" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button id="editSave" class="btn">Сохранить</button>
-      <button id="editCancel" class="btn small-btn">Отмена</button>
+  <div id="modalLogin" class="modal-back">
+    <div class="modal">
+      <h3>Вход / Регистрация</h3>
+      <div style="margin-top:8px"><input id="loginEmail" placeholder="Email" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,0.06)"/></div>
+      <div style="margin-top:8px"><input id="loginPass" placeholder="Пароль (6+)" type="password" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,0.06)"/></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btnLogin" class="btn">Войти</button>
+        <button id="btnRegister" class="btn small">Зарегистрироваться</button>
+      </div>
+      <div style="margin-top:10px;color:var(--muted)">Для регистрации используйте реальный email.</div>
     </div>
   </div>
-</div>
 
-<div id="modalConfirm" class="modal-back">
-  <div class="modal">
-    <div id="confirmText"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button id="confirmYes" class="btn">Да</button>
-      <button id="confirmNo" class="btn small-btn">Нет</button>
+  <div id="modalStickers" class="modal-back">
+    <div class="modal">
+      <h3>Стикеры</h3>
+      <div class="sticker-panel" id="stickerPanel"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px"><button id="closeStickers" class="btn small">Закрыть</button></div>
     </div>
   </div>
+
+  <div id="toast" class="toast"></div>
 </div>
 
-<div id="toast" class="toast"></div>
-
-<!-- Firebase SDKs (compat) -->
+<!-- Firebase (compat for easier code) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
 <script>
-/* ================= $Talk — final single-file (buttons contrast fixed) =================
-   Вся логика оставлена прежней: авторизация, профиль, чаты по $логину, delivered/read, редактирование/удаление.
-   Я проверил соответствие всех id и что кнопки используют правильные классы (.btn / .btn.small-btn / .btn.ghost).
+/*
+  $Talk — Firebase single-file app
+  - Auth (email/password) + user profile in Firestore (collection "users")
+  - Chats: collection "chats" with fields { participants: [logins], lastMessage, updatedAt }
+  - Messages: subcollection "messages" under chats/{chatId} with {from, text, sticker, createdAt, deliveredAt, readAt, edited}
+  - Avatar upload to Firebase Storage at "avatars/{uid}.jpg"
+  - Theme, stickers, wallet placeholder
+  - Read/delivered marking implemented
 */
 
-/* ---------------- Firebase config — используй свой конфиг (я оставил твой) ---------------- */
+/* ----------------- Firebase config (your config goes here) ----------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBz5OuG2E5-ZQk92GxvB17RPP64VgdJOeY",
   authDomain: "talk-f1ff9.firebaseapp.com",
@@ -228,22 +198,16 @@ const firebaseConfig = {
   measurementId: "G-3KDE4QT7PF"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const FieldValue = firebase.firestore.FieldValue;
+const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
+const fbStorage = firebase.storage();
 
-/* ---------------- DOM refs ---------------- */
+/* ----------------- DOM refs ----------------- */
+const appEl = document.getElementById('app');
+const themeToggle = document.getElementById('themeToggle');
 const menuBtn = document.getElementById('menuBtn');
 const drawer = document.getElementById('drawer');
 const overlay = document.getElementById('overlay');
-const openProfileBtn = document.getElementById('openProfileBtn');
-const openSettingsBtn = document.getElementById('openSettingsBtn');
-const d_name = document.getElementById('d_name');
-const d_login = document.getElementById('d_login');
-const d_about = document.getElementById('d_about');
-const d_save = document.getElementById('d_save');
-const d_logout = document.getElementById('d_logout');
-
 const leftPane = document.getElementById('leftPane');
 const searchInput = document.getElementById('searchInput');
 const newChatBtn = document.getElementById('newChatBtn');
@@ -257,8 +221,9 @@ const messagesDiv = document.getElementById('messages');
 const composer = document.getElementById('composer');
 const messageText = document.getElementById('messageText');
 const sendBtn = document.getElementById('sendBtn');
+const stickerToggle = document.getElementById('stickerToggle');
 
-const nameDisplay = document.getElementById('nameDisplay');
+const userNameEl = document.getElementById('userName');
 
 const modalLogin = document.getElementById('modalLogin');
 const loginEmail = document.getElementById('loginEmail');
@@ -266,434 +231,368 @@ const loginPass = document.getElementById('loginPass');
 const btnLogin = document.getElementById('btnLogin');
 const btnRegister = document.getElementById('btnRegister');
 
-const modalProfile = document.getElementById('modalProfile');
-const profileViewer = document.getElementById('profileViewer');
+const modalStickers = document.getElementById('modalStickers');
+const stickerPanel = document.getElementById('stickerPanel');
+const closeStickers = document.getElementById('closeStickers');
 
-const modalEdit = document.getElementById('modalEdit');
-const editText = document.getElementById('editText');
-const editSave = document.getElementById('editSave');
-const editCancel = document.getElementById('editCancel');
-
-const modalConfirm = document.getElementById('modalConfirm');
-const confirmText = document.getElementById('confirmText');
-const confirmYes = document.getElementById('confirmYes');
-const confirmNo = document.getElementById('confirmNo');
+const d_name = document.getElementById('d_name');
+const d_login = document.getElementById('d_login');
+const d_about = document.getElementById('d_about');
+const d_save = document.getElementById('d_save');
+const d_logout = document.getElementById('d_logout');
+const avatarInput = document.getElementById('avatarInput');
 
 const toast = document.getElementById('toast');
 
-/* ---------------- state ---------------- */
-let me = null;
-let profile = null;
-let chatsUnsub = null;
-let msgsUnsub = null;
+/* ----------------- state ----------------- */
+let me = null;            // firebase user object { uid, email }
+let profile = null;       // profile doc { uid, login, name, about, avatarUrl }
 let activeChatId = null;
-let editingMessage = null;
+let activeChatOther = null;
+let listeners = { chats:null, messages:null };
 
-/* ---------------- helpers ---------------- */
-const esc = s => (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
-function showToast(t){ toast.textContent = t; toast.style.display = 'block'; setTimeout(()=> toast.style.display='none', 2500); }
-function tstr(ts){ if(!ts) return ''; try{ if(ts.toDate) return ts.toDate().toLocaleTimeString(); return new Date(ts).toLocaleTimeString(); }catch(e){return ''; }}
+/* ----------------- utils ----------------- */
+function showToast(t){ toast.textContent = t; toast.style.display = 'block'; setTimeout(()=> toast.style.display='none', 2400); }
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
+function nowISO(){ return new Date().toISOString(); }
 
-/* ---------------- modal helpers ---------------- */
-function openModal(el){ el.style.display = 'flex'; }
-function closeModal(el){ el.style.display = 'none'; }
-function confirmDialog(text){ return new Promise(resolve=>{ confirmText.textContent = text; openModal(modalConfirm); confirmYes.onclick = ()=>{ closeModal(modalConfirm); resolve(true); }; confirmNo.onclick = ()=>{ closeModal(modalConfirm); resolve(false); }; }); }
+/* ----------------- theme ----------------- */
+const THEME_KEY = 'talk_theme';
+function loadTheme(){
+  const t = localStorage.getItem(THEME_KEY) || 'light';
+  appEl.setAttribute('data-theme', t);
+  themeToggle.textContent = t === 'dark' ? 'День' : 'Ночь';
+}
+function toggleTheme(){
+  const cur = appEl.getAttribute('data-theme') || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  appEl.setAttribute('data-theme', next);
+  localStorage.setItem(THEME_KEY, next);
+  themeToggle.textContent = next === 'dark' ? 'День' : 'Ночь';
+}
+themeToggle.addEventListener('click', ()=> toggleTheme());
 
-/* ---------------- drawer open/close and swipe left to close ---------------- */
+/* ----------------- drawer ----------------- */
 menuBtn.addEventListener('click', ()=>{ drawer.classList.add('open'); overlay.classList.add('show'); drawer.setAttribute('aria-hidden','false'); });
 overlay.addEventListener('click', closeDrawer);
 function closeDrawer(){ drawer.classList.remove('open'); overlay.classList.remove('show'); drawer.setAttribute('aria-hidden','true'); }
-(function drawerSwipe(){
-  let startX=0, touching=false;
-  drawer.addEventListener('touchstart', e=>{ startX = e.touches[0].clientX; touching=true; });
-  drawer.addEventListener('touchmove', e=>{ if(!touching) return; const cur = e.touches[0].clientX; const dx = cur - startX; if(dx < -40){ closeDrawer(); touching=false; } });
-  drawer.addEventListener('touchend', ()=>{ touching=false; });
-})();
 
-/* ---------------- Auth UI: login/register ---------------- */
-btnLogin.addEventListener('click', async ()=>{
-  const email = (loginEmail.value||'').trim(); const pass = (loginPass.value||'').trim();
-  if(!email||!pass) return showToast('Введите email и пароль');
-  try{ await auth.signInWithEmailAndPassword(email,pass); } catch(err){ console.error('login',err); showToast(err.message||'Ошибка входа'); }
-});
+/* ----------------- stickers ----------------- */
+const STICKERS = ['😀','😂','😍','😭','😎','🤯','🔥','🎉','❤️','👍','🤖','🦊','🍕','🌈'];
+function renderStickers(){
+  stickerPanel.innerHTML = '';
+  STICKERS.forEach(s=>{
+    const b = document.createElement('button');
+    b.className = 'sticker-btn';
+    b.innerHTML = `<span class="sticker">${s}</span>`;
+    b.onclick = ()=>{ sendSticker(s); closeModal(modalStickers); };
+    stickerPanel.appendChild(b);
+  });
+}
+stickerToggle.addEventListener('click', ()=> openModal(modalStickers));
+closeStickers.addEventListener('click', ()=> closeModal(modalStickers));
+
+/* ----------------- modals ----------------- */
+function openModal(el){ el.style.display = 'flex'; }
+function closeModal(el){ el.style.display = 'none'; }
+
+/* ----------------- Auth: register / login ----------------- */
 btnRegister.addEventListener('click', async ()=>{
-  const email = (loginEmail.value||'').trim(); const pass = (loginPass.value||'').trim();
-  if(!email||!pass) return showToast('Введите email и пароль');
-  if(pass.length < 6) return showToast('Пароль ≥ 6');
+  const email = (loginEmail.value||'').trim();
+  const pass = (loginPass.value||'').trim();
+  if(!email || !pass || pass.length < 6) return showToast('Введите корректный email и пароль ≥6');
   try{
-    const reg = await auth.createUserWithEmailAndPassword(email,pass);
-    await db.collection('users').doc(reg.user.uid).set({
-      email: reg.user.email,
-      name: '',
-      login: '$' + (reg.user.email.split('@')[0].slice(0,8)),
-      about: '',
-      createdAt: FieldValue.serverTimestamp()
-    }, { merge:true });
-    showToast('Учетная запись создана');
-  } catch(err){ console.error('register',err); showToast(err.message||'Ошибка регистрации'); }
+    const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+    const uid = cred.user.uid;
+    // default login -> $ + localpart
+    const defaultLogin = '$' + email.split('@')[0].replace(/[^a-z0-9]/ig,'').slice(0,12);
+    // ensure unique login: if collision append random
+    let loginToUse = defaultLogin;
+    const q = await fbDb.collection('users').where('login','==', loginToUse).get();
+    if(!q.empty) loginToUse = defaultLogin + '_' + Math.random().toString(36).slice(2,5);
+    const profileDoc = { uid, email, login: loginToUse, name: '', about:'', avatarUrl:'', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+    await fbDb.collection('users').doc(uid).set(profileDoc);
+    showToast('Аккаунт создан');
+    closeModal(modalLogin);
+  } catch(e){ console.error(e); showToast(e.message || 'Ошибка регистрации'); }
 });
 
-/* ---------------- Auth state ---------------- */
-auth.onAuthStateChanged(async user=>{
-  if(user){
-    me = user;
-    await loadProfile();
-    nameDisplay.textContent = profile && profile.name ? profile.name : (me.email || 'Пользователь');
+btnLogin.addEventListener('click', async ()=>{
+  const email = (loginEmail.value||'').trim();
+  const pass = (loginPass.value||'').trim();
+  if(!email || !pass) return showToast('Введите email и пароль');
+  try{
+    // allow login by email only for simplicity
+    await fbAuth.signInWithEmailAndPassword(email, pass);
     closeModal(modalLogin);
-    startChatsListener();
-  } else {
-    me = null; profile = null;
-    nameDisplay.textContent = 'Гость';
-    if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
-    if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
-    activeChatId = null;
-    chatHeader.style.display = 'none'; composer.style.display = 'none';
-    messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Войдите, чтобы пользоваться</div>';
-    openModal(modalLogin);
+  } catch(e){
+    showToast(e.message || 'Ошибка входа');
   }
 });
 
-/* ---------------- load profile ---------------- */
-async function loadProfile(){
-  if(!me) return;
+/* ----------------- profile load/save ----------------- */
+async function loadProfile(uid){
   try{
-    const doc = await db.collection('users').doc(me.uid).get();
-    if(doc.exists) profile = doc.data();
-    else {
-      const base = { email: me.email, name:'', login:'$'+(me.email.split('@')[0].slice(0,8)), about:'', createdAt: FieldValue.serverTimestamp() };
-      await db.collection('users').doc(me.uid).set(base, { merge:true });
-      profile = base;
-    }
-    // fill drawer fields
-    d_name.value = profile.name || '';
-    d_login.value = profile.login || ('$' + (me.email.split('@')[0].slice(0,8)));
-    d_about.value = profile.about || '';
-  } catch(e){ console.error('loadProfile', e); showToast('Ошибка профиля'); }
+    const doc = await fbDb.collection('users').doc(uid).get();
+    if(doc.exists){ profile = doc.data(); profile.uid = uid; userNameEl.textContent = profile.name || profile.login || profile.email; return profile; }
+    return null;
+  } catch(e){ console.error(e); return null; }
 }
 
-/* ---------------- settings save with login uniqueness check ---------------- */
 d_save.addEventListener('click', async ()=>{
-  if(!me) return showToast('Войдите');
+  if(!profile) return showToast('Войдите');
   const name = (d_name.value||'').trim();
-  const login = (d_login.value||'').trim();
+  let loginVal = (d_login.value||'').trim();
   const about = (d_about.value||'').trim();
-  if(!login.startsWith('$')) return showToast('Логин должен начинаться с $');
-  if(about.length > 100) return showToast('Описание ≤ 100');
+  if(!loginVal.startsWith('$')) return showToast('Логин должен начинаться с $');
+  // check unique login
   try{
-    const snap = await db.collection('users').where('login','==', login).get();
+    const q = await fbDb.collection('users').where('login','==', loginVal).get();
     let conflict = false;
-    snap.forEach(doc => { if(doc.id !== me.uid) conflict = true; });
-    if(conflict) return showToast('Такой логин уже существует');
-    await db.collection('users').doc(me.uid).set({ name, login, about, updatedAt: FieldValue.serverTimestamp() }, { merge:true });
-    profile = {...profile, name, login, about};
-    nameDisplay.textContent = profile.name || me.email;
-    showToast('Настройки сохранены');
-    closeDrawer();
-    if(chatsUnsub){ chatsUnsub(); chatsUnsub = null; }
-    startChatsListener();
-  } catch(e){ console.error('save settings', e); showToast('Ошибка сохранения'); }
+    q.forEach(doc=>{ if(doc.id !== profile.uid) conflict = true; });
+    if(conflict) return showToast('Логин занят');
+    // upload avatar if selected
+    if(avatarInput.files && avatarInput.files[0]){
+      const file = avatarInput.files[0];
+      const ref = fbStorage.ref().child(`avatars/${profile.uid}_${Date.now()}.jpg`);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      await fbDb.collection('users').doc(profile.uid).set({ name, login: loginVal, about, avatarUrl: url }, { merge:true });
+    } else {
+      await fbDb.collection('users').doc(profile.uid).set({ name, login: loginVal, about }, { merge:true });
+    }
+    showToast('Сохранено');
+  } catch(e){ console.error(e); showToast('Ошибка сохранения'); }
 });
 
 /* logout */
-d_logout.addEventListener('click', async ()=>{ const ok = await confirmDialog('Выйти из аккаунта?'); if(!ok) return; try{ await auth.signOut(); closeDrawer(); } catch(e){ console.error(e); showToast('Ошибка выхода'); } });
+d_logout.addEventListener('click', async ()=>{
+  try{ await fbAuth.signOut(); profile = null; me = null; userNameEl.textContent = 'Гость'; if(listeners.chats) listeners.chats(); if(listeners.messages) listeners.messages(); openModal(modalLogin); } catch(e){ console.error(e); }
+});
 
-/* ---------------- chats listener (participants store logins) ---------------- */
-function startChatsListener(){
-  if(!profile || !profile.login) return;
-  if(chatsUnsub) chatsUnsub();
-  const q = db.collection('chats').where('participants','array-contains', profile.login);
-  chatsUnsub = q.onSnapshot(snapshot=>{
-    try{
-      const arr = [];
-      snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
-      arr.sort((a,b)=>{
-        const ta = a.updatedAt ? (a.updatedAt.seconds||0) : 0;
-        const tb = b.updatedAt ? (b.updatedAt.seconds||0) : 0;
-        return tb - ta;
-      });
-      renderChats(arr);
-    } catch(e){ console.error('chats render', e); showToast('Ошибка при получении чатов'); }
-  }, err=>{ console.error('chats snap', err); showToast('Ошибка при получении чатов'); });
+/* ----------------- chats list (realtime) ----------------- */
+function subscribeChats(){
+  if(!profile) return;
+  if(listeners.chats) listeners.chats();
+  listeners.chats = fbDb.collection('chats').where('participants','array-contains', profile.login).orderBy('updatedAt','desc').onSnapshot(snap=>{
+    const arr = [];
+    snap.forEach(d=> arr.push({ id:d.id, ...d.data() }));
+    renderChatsUI(arr);
+  }, err=>{ console.error(err); showToast('Ошибка получения чатов'); });
 }
 
-function renderChats(chats){
+/* render chats */
+function renderChatsUI(chatsArr){
   chatsDiv.innerHTML = '';
-  if(!chats.length){ chatsDiv.innerHTML = '<div style="color:var(--muted);padding:12px">У вас пока нет чатов — найдите кого-нибудь по $логину</div>'; return; }
-  chats.forEach(c=>{
-    const otherLogin = (c.participants||[]).find(x=> x !== profile.login) || 'Неизвестный';
+  if(!chatsArr.length){ chatsDiv.innerHTML = '<div style="color:var(--muted);padding:12px">У вас пока нет чатов — найдите кого-нибудь по $логину</div>'; return; }
+  chatsArr.forEach(c=>{
+    const other = c.participants.find(p=> p !== profile.login) || c.participants[0];
     const el = document.createElement('div'); el.className='chat-item';
-    el.innerHTML = `<div class="ava">${esc(otherLogin.slice(0,2)).toUpperCase()}</div>
-      <div class="meta"><div class="name">${esc(otherLogin)}</div><div class="last">${esc(c.lastMessage||'')}</div></div>
-      <div class="time">${tstr(c.updatedAt)}</div>`;
-    el.addEventListener('click', ()=> openChat(c.id));
+    el.innerHTML = `<div class="ava">${esc(other.slice(0,2)).toUpperCase()}</div>
+      <div class="meta"><div class="name">${esc(other)}</div><div class="last">${esc(c.lastMessage||'')}</div></div>
+      <div class="time">${c.updatedAt ? new Date(c.updatedAt.toDate ? c.updatedAt.toDate() : c.updatedAt).toLocaleTimeString() : ''}</div>`;
+    el.addEventListener('click', ()=> openChat(c.id, other));
     chatsDiv.appendChild(el);
   });
 }
 
-/* ---------------- create/open chat: search only by $login ---------------- */
-newChatBtn.addEventListener('click', async ()=>{
-  const q = (searchInput.value||'').trim();
-  if(!q) return showToast('Введите $логин пользователя');
-  if(!q.startsWith('$')) return showToast('Логин должен начинаться с $');
-  try{
-    const snap = await db.collection('users').where('login','==', q).limit(1).get();
-    if(snap.empty) return showToast('Пользователь не найден');
-    const ud = snap.docs[0].data();
-    createOrOpenChatWith(ud.login);
-  } catch(e){ console.error('search or create', e); showToast('Ошибка поиска'); }
-});
-
+/* ----------------- create or open chat by otherLogin ----------------- */
+newChatBtn.addEventListener('click', ()=> createOrOpenChatWith((searchInput.value||'').trim()));
 async function createOrOpenChatWith(otherLogin){
   if(!profile) return showToast('Войдите');
-  otherLogin = (otherLogin||'').trim();
-  if(!otherLogin) return;
+  if(!otherLogin || !otherLogin.startsWith('$')) return showToast('Введите логин, начинающийся с $');
   try{
-    const q = db.collection('chats').where('participants','array-contains', profile.login);
-    const snap = await q.get();
+    // find other user doc
+    const snap = await fbDb.collection('users').where('login','==', otherLogin).limit(1).get();
+    if(snap.empty) return showToast('Пользователь не найден');
+    // find existing chat that contains both participants
+    const chatsSnap = await fbDb.collection('chats').where('participants','array-contains', profile.login).get();
     let found = null;
-    snap.forEach(d=>{
+    chatsSnap.forEach(d=>{
       const data = d.data();
       if(Array.isArray(data.participants) && data.participants.includes(otherLogin)) found = { id:d.id, ...data };
     });
-    if(found){ openChat(found.id); return; }
-    const ref = await db.collection('chats').add({ participants: [profile.login, otherLogin], lastMessage: '', updatedAt: FieldValue.serverTimestamp() });
-    openChat(ref.id);
-  } catch(e){ console.error('createOrOpenChat', e); showToast('Ошибка создания чата'); }
+    if(found){ openChat(found.id, otherLogin); return; }
+    // create chat
+    const ref = await fbDb.collection('chats').add({ participants: [profile.login, otherLogin], lastMessage:'', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    openChat(ref.id, otherLogin);
+  } catch(e){ console.error(e); showToast('Ошибка создания/поиска чата'); }
 }
 
-/* ---------------- open chat & messages: delivered/read logic ---------------- */
-function openChat(chatId){
+/* ----------------- open chat & messages ----------------- */
+async function openChat(chatId, otherLogin){
   activeChatId = chatId;
+  activeChatOther = otherLogin || null;
   chatHeader.style.display = 'flex';
   composer.style.display = 'flex';
-  messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Загрузка сообщений...</div>';
-  db.collection('chats').doc(chatId).get().then(async snap=>{
-    if(!snap.exists) return;
-    const data = snap.data();
-    const otherLogin = (data.participants||[]).find(x=> x !== profile.login) || '';
-    chatTitle.textContent = otherLogin;
-    const userSnap = await db.collection('users').where('login','==', otherLogin).limit(1).get();
-    if(!userSnap.empty){
-      const ud = userSnap.docs[0].data();
-      chatTitle.textContent = ud.name || otherLogin;
-      chatSub.textContent = ud.about || '';
-    } else { chatSub.textContent = ''; }
-  }).catch(e=>console.error('chat meta', e));
-
-  if(msgsUnsub) msgsUnsub();
-  const msgsRef = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
-  msgsUnsub = msgsRef.onSnapshot(async snapshot=>{
-    const arr = []; snapshot.forEach(d=> arr.push({ id:d.id, ...d.data() }));
-    renderMessages(arr);
-    snapshot.docChanges().forEach(async change=>{
-      if(change.type === 'added'){
-        const m = change.doc.data();
-        if(m.from !== profile.login && !m.deliveredAt){
-          try{ await db.collection('chats').doc(chatId).collection('messages').doc(change.doc.id).update({ deliveredAt: FieldValue.serverTimestamp() }); } catch(e){ console.error('mark delivered', e); }
-        }
+  chatTitle.textContent = otherLogin || 'Чат';
+  chatSub.textContent = '';
+  // remove previous listener
+  if(listeners.messages) listeners.messages();
+  // messages subcollection snapshot
+  const msgsRef = fbDb.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc');
+  listeners.messages = msgsRef.onSnapshot(async snap=>{
+    const arr = [];
+    snap.forEach(d=> arr.push({ id:d.id, ...d.data() }));
+    renderMessagesUI(arr);
+    // mark delivered for messages not from me
+    for(const m of arr){
+      if(m.from !== profile.login && !m.deliveredAt){
+        try{ await fbDb.collection('chats').doc(chatId).collection('messages').doc(m.id).update({ deliveredAt: firebase.firestore.FieldValue.serverTimestamp() }); } catch(e){}
       }
-    });
-    await markMessagesRead(chatId);
-  }, err=>{ console.error('messages snap err', err); showToast('Ошибка получения сообщений'); });
-
+    }
+    // mark read
+    markMessagesReadFirebase(chatId);
+  }, err=>{ console.error(err); showToast('Ошибка получения сообщений'); });
   if(window.innerWidth < 720) leftPane.style.display = 'none';
 }
 
-/* ---------------- render messages ---------------- */
-function renderMessages(msgs){
+/* render messages */
+function renderMessagesUI(msgs){
   messagesDiv.innerHTML = '';
   if(!msgs.length){ messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Чат пуст</div>'; return; }
   msgs.forEach(m=>{
     const el = document.createElement('div');
     el.className = 'msg ' + (m.from === profile.login ? 'me' : 'you');
     const checks = (m.from === profile.login) ? (m.readAt ? '✓✓' : (m.deliveredAt ? '✓' : '')) : '';
-    const checksHtml = checks ? `<span class="checks">${esc(checks)}</span>` : '';
-    const metaHtml = `<div class="meta"><span>${esc(m.from)}</span> · <span>${tstr(m.createdAt)}</span>${checksHtml}</div>`;
-    const bodyHtml = `<div>${esc(m.text||'')}</div>`;
+    const created = m.createdAt && m.createdAt.toDate ? new Date(m.createdAt.toDate()).toLocaleTimeString() : (m.createdAt||'');
+    const metaHtml = `<div class="meta"><span>${esc(m.from)}</span> · <span>${created}</span><span class="checks">${esc(checks)}</span></div>`;
+    let bodyHtml = '';
+    if(m.sticker) bodyHtml = `<div class="sticker">${esc(m.sticker)}</div>`; else bodyHtml = `<div>${esc(m.text||'')}</div>`;
     el.innerHTML = metaHtml + bodyHtml;
-    bindMessageActions(el, m);
+    // context menu for edit/delete if mine
+    el.addEventListener('contextmenu', (e)=>{ e.preventDefault(); if(m.from === profile.login){ showMessageActions(m); } });
+    // tap on other => view profile
+    el.addEventListener('dblclick', ()=>{ if(m.from !== profile.login) viewProfileByLogin(m.from); });
     messagesDiv.appendChild(el);
   });
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-/* long-press and right-click to open menu for own messages */
-function bindMessageActions(el, msg){
-  let timer = null; const longMs = 600;
-  const start = e=>{
-    if(e.type === 'contextmenu'){ e.preventDefault(); openMessageMenu(msg); return; }
-    timer = setTimeout(()=> openMessageMenu(msg), longMs);
-  };
-  const cancel = ()=>{ if(timer){ clearTimeout(timer); timer=null; } };
-  el.addEventListener('touchstart', start, {passive:false});
-  el.addEventListener('mousedown', start);
-  el.addEventListener('touchend', cancel);
-  el.addEventListener('mouseup', cancel);
-  el.addEventListener('mouseleave', cancel);
-  el.addEventListener('contextmenu', start);
+/* message actions: edit / delete */
+function showMessageActions(m){
+  const choice = prompt('Введите "edit" чтобы отредактировать, "delete" чтобы удалить. Оставьте пустым — отмена');
+  if(!choice) return;
+  if(choice === 'delete'){
+    if(confirm('Удалить сообщение?')) deleteMessage(activeChatId, m.id);
+  } else if(choice === 'edit'){
+    const newText = prompt('Новое сообщение', m.text||'');
+    if(newText !== null) editMessage(activeChatId, m.id, newText);
+  }
 }
 
-async function openMessageMenu(msg){
-  if(msg.from !== profile.login) return;
-  confirmText.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button id="__optEdit" class="btn">Изменить</button>
-      <button id="__optDel" class="btn small-btn">Удалить</button>
-      <button id="__optClose" class="btn small-btn">Отмена</button>
-    </div>`;
-  openModal(modalConfirm);
-  document.getElementById('__optEdit').onclick = ()=>{
-    closeModal(modalConfirm);
-    editingMessage = msg;
-    editText.value = msg.text || '';
-    openModal(modalEdit);
-  };
-  document.getElementById('__optDel').onclick = async ()=>{
-    closeModal(modalConfirm);
-    const ok = await confirmDialog('Удалить сообщение?');
-    if(!ok) return;
-    try{ await db.collection('chats').doc(activeChatId).collection('messages').doc(msg.id).delete(); showToast('Сообщение удалено'); } catch(e){ console.error('delete', e); showToast('Ошибка удаления'); }
-  };
-  document.getElementById('__optClose').onclick = ()=> closeModal(modalConfirm);
-}
-
-/* edit modal actions */
-editSave.addEventListener('click', async ()=>{
-  if(!editingMessage) return;
-  const nt = (editText.value||'').trim();
+/* delete & edit */
+async function deleteMessage(chatId, msgId){
   try{
-    await db.collection('chats').doc(activeChatId).collection('messages').doc(editingMessage.id).update({ text: nt, edited: true });
-    const chatDoc = await db.collection('chats').doc(activeChatId).get();
-    if(chatDoc.exists && chatDoc.data().lastMessage === editingMessage.text){
-      await db.collection('chats').doc(activeChatId).set({ lastMessage: nt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-    }
+    await fbDb.collection('chats').doc(chatId).collection('messages').doc(msgId).delete();
+    showToast('Сообщение удалено');
+  } catch(e){ console.error(e); showToast('Ошибка удаления'); }
+}
+async function editMessage(chatId, msgId, newText){
+  try{
+    await fbDb.collection('chats').doc(chatId).collection('messages').doc(msgId).update({ text: newText, edited: true });
     showToast('Сообщение изменено');
-    editingMessage = null; closeModal(modalEdit);
-  } catch(e){ console.error('edit save', e); showToast('Ошибка редактирования'); }
-});
-editCancel.addEventListener('click', ()=>{ editingMessage = null; closeModal(modalEdit); });
-
-/* mark messages read */
-async function markMessagesRead(chatId){
-  if(!profile) return;
-  try{
-    const q = db.collection('chats').doc(chatId).collection('messages')
-      .where('from','!=', profile.login)
-      .where('readAt','==', null);
-    const snap = await q.get();
-    if(snap.empty) return;
-    const batch = db.batch();
-    snap.forEach(docSnap => {
-      const ref = db.collection('chats').doc(chatId).collection('messages').doc(docSnap.id);
-      batch.update(ref, { readAt: FieldValue.serverTimestamp() });
-    });
-    await batch.commit();
-  } catch(e){ console.error('mark read', e); }
+  } catch(e){ console.error(e); showToast('Ошибка редактирования'); }
 }
 
-/* send message */
-sendBtn.addEventListener('click', async ()=>{
+/* ----------------- send text & sticker ----------------- */
+sendBtn.addEventListener('click', ()=> sendText());
+messageText.addEventListener('keydown', (e)=> { if(e.key === 'Enter') sendText(); });
+
+async function sendText(){
   if(!activeChatId) return showToast('Откройте чат');
   const txt = (messageText.value||'').trim();
   if(!txt) return;
   try{
-    const msgObj = { from: profile.login, text: txt, createdAt: FieldValue.serverTimestamp(), type: 'text' };
-    await db.collection('chats').doc(activeChatId).collection('messages').add(msgObj);
-    await db.collection('chats').doc(activeChatId).set({ lastMessage: txt, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    const msgRef = await fbDb.collection('chats').doc(activeChatId).collection('messages').add({ from: profile.login, text: txt, sticker:null, createdAt: firebase.firestore.FieldValue.serverTimestamp(), deliveredAt:null, readAt:null, edited:false });
+    await fbDb.collection('chats').doc(activeChatId).set({ lastMessage: txt, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
     messageText.value = '';
-  } catch(e){ console.error('send', e); showToast('Ошибка отправки'); }
-});
-messageText.addEventListener('keydown', e=>{ if(e.key === 'Enter') sendBtn.click(); });
-
-/* back button & swipe to close chat */
-backBtn.addEventListener('click', ()=> closeChat());
-(function chatSwipeClose(){
-  let startX=0, touching=false;
-  messagesDiv.addEventListener('touchstart', e=>{ startX = e.touches[0].clientX; touching=true; });
-  messagesDiv.addEventListener('touchmove', e=>{ if(!touching) return; const cur = e.touches[0].clientX; const dx = cur - startX; if(dx > 60){ closeChat(); touching=false; } });
-  messagesDiv.addEventListener('touchend', ()=>{ touching=false; });
-})();
-
-function closeChat(){
-  if(msgsUnsub){ msgsUnsub(); msgsUnsub = null; }
-  activeChatId = null;
-  composer.style.display = 'none';
-  chatHeader.style.display = 'none';
-  messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Выберите чат или найдите по $логину</div>';
-  if(window.innerWidth < 720) leftPane.style.display = 'block';
+  } catch(e){ console.error(e); showToast('Ошибка отправки'); }
 }
 
-/* view profile modal (click header title) */
-chatTitle.addEventListener('click', async ()=>{
-  if(!activeChatId) return;
+async function sendSticker(st){
+  if(!activeChatId) return showToast('Откройте чат');
   try{
-    const chatDoc = await db.collection('chats').doc(activeChatId).get();
-    if(!chatDoc.exists) return;
-    const otherLogin = (chatDoc.data().participants||[]).find(x=> x !== profile.login);
-    if(!otherLogin) return;
-    const snap = await db.collection('users').where('login','==', otherLogin).limit(1).get();
-    if(snap.empty){
-      profileViewer.innerHTML = `<div>Пользователь: ${esc(otherLogin)}</div><div style="margin-top:10px;color:var(--muted)">Доп. данных нет</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close" class="btn small-btn">Закрыть</button></div>`;
-      openModal(modalProfile);
-      document.getElementById('pv_close').onclick = ()=> closeModal(modalProfile);
-      return;
-    }
-    const ud = snap.docs[0].data();
-    profileViewer.innerHTML = `
-      <div style="display:flex;gap:12px;align-items:center">
-        <div style="width:84px;height:84;border-radius:12px;background:#eee;display:flex;align-items:center;justify-content:center">${esc((ud.name||ud.login||'').slice(0,2)).toUpperCase()}</div>
-        <div>
-          <div style="font-weight:700">${esc(ud.name||ud.login)}</div>
-          <div style="color:var(--muted);margin-top:6px">${esc(ud.login||'')}</div>
-          <div style="margin-top:8px;color:var(--muted);max-width:260px">${esc(ud.about||'')}</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close" class="btn small-btn">Закрыть</button></div>
-    `;
-    openModal(modalProfile);
-    document.getElementById('pv_close').onclick = ()=> closeModal(modalProfile);
-  } catch(e){ console.error('view profile', e); showToast('Ошибка просмотра профиля'); }
+    await fbDb.collection('chats').doc(activeChatId).collection('messages').add({ from: profile.login, text:'', sticker:st, createdAt: firebase.firestore.FieldValue.serverTimestamp(), deliveredAt:null, readAt:null, edited:false });
+    await fbDb.collection('chats').doc(activeChatId).set({ lastMessage: '[Стикер]', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+  } catch(e){ console.error(e); showToast('Ошибка отправки стикера'); }
+}
+
+/* ----------------- delivered & read marking ----------------- */
+async function markMessagesReadFirebase(chatId){
+  if(!profile) return;
+  try{
+    const q = await fbDb.collection('chats').doc(chatId).collection('messages').where('from','!=', profile.login).where('readAt','==', null).get();
+    const batch = fbDb.batch();
+    q.forEach(docSnap => batch.update(docSnap.ref, { readAt: firebase.firestore.FieldValue.serverTimestamp() }) );
+    await batch.commit();
+  } catch(e){ console.error('mark read', e); }
+}
+
+/* ----------------- profile view by login ----------------- */
+async function viewProfileByLogin(login){
+  try{
+    const snap = await fbDb.collection('users').where('login','==', login).limit(1).get();
+    if(snap.empty) return showToast('Профиль не найден');
+    const d = snap.docs[0].data();
+    alert(`Профиль:\nИмя: ${d.name || '-'}\nЛогин: ${d.login}\nО себе: ${d.about || '-'}\nEmail: ${d.email || '-'}`);
+  } catch(e){ console.error(e); showToast('Ошибка загрузки профиля'); }
+}
+
+/* ----------------- avatar upload helper (on save) handled above in d_save handler */
+
+/* ----------------- helpers for UI & startup ----------------- */
+menuBtn.addEventListener('click', ()=>{ drawer.classList.add('open'); overlay.classList.add('show'); });
+document.querySelectorAll('.modal-back').forEach(el=> el.addEventListener('click', (ev)=>{ if(ev.target === el) el.style.display='none'; }));
+
+function closeChat(){ activeChatId = null; activeChatOther = null; composer.style.display='none'; chatHeader.style.display='none'; messagesDiv.innerHTML = '<div style="color:var(--muted);padding:12px">Выберите чат или найдите по $логину</div>'; if(window.innerWidth < 720) leftPane.style.display = 'block'; }
+backBtn.addEventListener('click', ()=> closeChat());
+
+openProfileBtn.addEventListener('click', ()=> { drawer.classList.remove('open'); overlay.classList.remove('show'); openProfileEditor(); });
+openSettingsBtn.addEventListener('click', ()=> { drawer.classList.remove('open'); overlay.classList.remove('show'); openSettings(); });
+walletBtn.addEventListener('click', ()=> showToast('Кошелёк появится скоро — следи обновления'));
+
+function openProfileEditor(){
+  if(!profile) return openModal(modalLogin);
+  d_name.value = profile.name || '';
+  d_login.value = profile.login || '';
+  d_about.value = profile.about || '';
+  drawer.classList.add('open'); overlay.classList.add('show');
+}
+function openSettings(){ drawer.classList.add('open'); overlay.classList.add('show'); }
+
+/* ----------------- auth state listener (init) ----------------- */
+loadTheme();
+renderStickers();
+
+fbAuth.onAuthStateChanged(async (user)=>{
+  if(user){
+    me = user;
+    await loadProfile(user.uid);
+    subscribeChats();
+    closeModal(modalLogin);
+  } else {
+    me = null; profile = null;
+    openModal(modalLogin);
+  }
 });
 
-/* drawer profile/open settings */
-openProfileBtn.addEventListener('click', async ()=>{
-  closeDrawer();
-  profileViewer.innerHTML = `
-    <div style="display:flex;gap:12px;align-items:center">
-      <div style="width:84px;height:84;border-radius:12px;background:#eee;display:flex;align-items:center;justify-content:center">${esc((profile.name||profile.login||'').slice(0,2)).toUpperCase()}</div>
-      <div>
-        <div style="font-weight:700">${esc(profile.name || profile.login)}</div>
-        <div style="color:var(--muted);margin-top:6px">${esc(profile.login)}</div>
-        <div style="margin-top:8px;color:var(--muted);max-width:260px">${esc(profile.about||'')}</div>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="pv_close_self" class="btn small-btn">Закрыть</button></div>
-  `;
-  openModal(modalProfile);
-  document.getElementById('pv_close_self').onclick = ()=> closeModal(modalProfile);
-});
-openSettingsBtn.addEventListener('click', ()=>{ /* drawer already shows settings fields */ });
+/* seed helper: if no users, create demo users/chats (only on dev) */
+async function seedIfEmpty(){
+  try{
+    const uSnap = await fbDb.collection('users').limit(1).get();
+    if(!uSnap.empty) return;
+    // not ideal to seed on production; only for developer convenience
+    const a = await fbDb.collection('users').add({ email:'alice@example.com', login:'$alice', name:'Alice', about:'Demo', avatarUrl:'', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    const b = await fbDb.collection('users').add({ email:'bob@example.com', login:'$bob', name:'Bob', about:'Demo', avatarUrl:'', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    // create chat
+    const chatRef = await fbDb.collection('chats').add({ participants: ['$alice','$bob'], lastMessage:'Привет от Alice', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await fbDb.collection('chats').doc(chatRef.id).collection('messages').add({ from:'$alice', text:'Привет, это тест', sticker:null, createdAt: firebase.firestore.FieldValue.serverTimestamp(), deliveredAt:null, readAt:null, edited:false });
+  } catch(e){ console.warn('seed failed', e); }
+}
+// seedIfEmpty(); // отключено по умолчанию чтобы не засорять проект
 
-/* close modal on backdrop click */
-document.querySelectorAll('.modal-back').forEach(el=>{
-  el.addEventListener('click', (ev)=>{ if(ev.target === el) el.style.display = 'none'; });
-});
-
-/* initial UI on load */
-window.addEventListener('load', ()=>{
-  modalLogin.style.display = 'none';
-  modalProfile.style.display = 'none';
-  modalEdit.style.display = 'none';
-  modalConfirm.style.display = 'none';
-  overlay.classList.remove('show');
-  if(!auth.currentUser) openModal(modalLogin);
-});
-
-/* notes:
- - Buttons were updated: .btn, .btn.small-btn and .btn.ghost now have clear contrasting styles.
- - Проверочные шаги: сопоставил все кнопки с классами, убедился, что видимые кнопки (Найти/Открыть, Войти, Зарегистрироваться) используют .btn или .btn.small-btn.
- - Если где-то кнопка всё ещё "бледная" — пришли строку HTML кнопки (я поправлю класс).
----------------------------------------------------------------------------------------- */
+/* ----------------- finished ----------------- */
 </script>
 </body>
 </html>
