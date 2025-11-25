@@ -1,270 +1,1232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Editor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Kingus - Королевский Браузер</title>
     <style>
-        :root {
-            --primary-color: #1d1d1d;
-            --secondary-color: #2d2d2d;
-            --text-color: #fff;
-            --accent-color: #67f4b4;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --royal-gold: #FFD700;
+            --royal-gold-dark: #B8860B;
+            --royal-purple: #4B0082;
+            --royal-purple-dark: #2F1B69;
+            --royal-blue: #1E3A8A;
+            --dark-bg: #0F0F1A;
+            --dark-surface: #1A1A2E;
+            --dark-border: #2A2A4A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --accent-gradient: linear-gradient(135deg, var(--royal-gold), var(--royal-gold-dark));
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--primary-color);
-            color: var(--text-color);
-            display: flex;
-            min-height: 100vh;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
         }
 
-        .editor-container {
+        .browser-container {
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            background: radial-gradient(ellipse at top, rgba(75, 0, 130, 0.1) 0%, transparent 70%);
+        }
+
+        /* Toolbar - Королевский стиль */
+        .toolbar {
+            background: linear-gradient(135deg, var(--dark-surface) 0%, var(--royal-purple-dark) 100%);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid var(--royal-gold);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+        }
+
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 20px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--royal-gold);
+            background: linear-gradient(135deg, var(--dark-surface), var(--royal-purple-dark));
+            color: var(--royal-gold);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
+            height: 100%;
+            background: var(--accent-gradient);
+            transition: left 0.3s ease;
+            z-index: -1;
         }
 
-        @media (min-width: 768px) {
-            .editor-container {
-                flex-direction: row;
-            }
+        .nav-btn:hover:not(:disabled)::before {
+            left: 0;
         }
 
-        .editor-panel {
+        .nav-btn:hover:not(:disabled) {
+            color: var(--dark-bg);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+
+        .url-bar {
             flex: 1;
             display: flex;
-            flex-direction: column;
-            padding: 1rem;
-        }
-
-        .toolbar {
-            background: var(--secondary-color);
-            padding: 0.8rem;
-            display: flex;
-            justify-content: space-between;
+            gap: 10px;
             align-items: center;
         }
 
-        .toolbar button {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            transition: background 0.3s;
-        }
-
-        .toolbar button:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .code-editor {
+        .url-input-wrapper {
             flex: 1;
             position: relative;
-            overflow: auto;
-            border-radius: 8px;
-            background: var(--primary-color);
-            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
         }
 
-        .code-editor textarea {
+        .url-input {
+            width: 100%;
+            background: linear-gradient(135deg, var(--dark-bg), var(--dark-surface));
+            border: 2px solid var(--dark-border);
+            color: var(--text-primary);
+            padding: 12px 20px 12px 50px;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--royal-gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(255, 215, 0, 0.1);
+        }
+
+        .url-icon {
+            position: absolute;
+            left: 18px;
+            color: var(--royal-gold);
+            font-size: 18px;
+        }
+
+        .go-btn {
+            background: var(--accent-gradient);
+            border: none;
+            color: var(--dark-bg);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .go-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .registrar-btn {
+            background: linear-gradient(135deg, var(--royal-purple), var(--royal-blue));
+            border: 2px solid var(--royal-gold);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .registrar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(75, 0, 130, 0.5);
+            border-color: #FFD700;
+        }
+
+        /* Tabs - Королевский стиль */
+        .tabs-container {
+            background: linear-gradient(135deg, var(--dark-surface), var(--royal-purple-dark));
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--royal-gold);
+            min-height: 45px;
+            padding: 0 10px;
+        }
+
+        .tabs {
+            display: flex;
+            flex: 1;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--royal-gold) var(--dark-border);
+        }
+
+        .tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .tabs::-webkit-scrollbar-track {
+            background: var(--dark-border);
+        }
+
+        .tabs::-webkit-scrollbar-thumb {
+            background: var(--royal-gold);
+            border-radius: 3px;
+        }
+
+        .tab {
+            background: linear-gradient(135deg, var(--dark-bg), var(--dark-surface));
+            border: 1px solid var(--dark-border);
+            border-radius: 8px 8px 0 0;
+            padding: 10px 16px;
+            margin-right: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 150px;
+            max-width: 220px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--royal-purple-dark), var(--royal-purple));
+            border-color: var(--royal-gold);
+            border-bottom-color: var(--royal-purple-dark);
+        }
+
+        .tab:hover:not(.active) {
+            border-color: var(--royal-gold);
+            transform: translateY(-2px);
+        }
+
+        .tab-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .tab-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .tab-close:hover {
+            color: var(--text-primary);
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .new-tab-btn {
+            background: linear-gradient(135deg, var(--dark-bg), var(--dark-surface));
+            border: 1px solid var(--dark-border);
+            color: var(--royal-gold);
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 18px;
+            line-height: 1;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .new-tab-btn:hover {
+            border-color: var(--royal-gold);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            background: var(--dark-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .webview {
             width: 100%;
             height: 100%;
             border: none;
-            background: transparent;
-            color: var(--text-color);
-            font-family: 'Fira Code', monospace;
-            padding: 1.5rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            resize: none;
+            display: none;
+            background: var(--dark-bg);
         }
 
-        .preview-container {
-            flex: 1;
-            padding: 1rem;
-            border-radius: 8px;
-            background: #121212;
+        .webview.active {
+            display: block;
         }
 
-        .preview {
+        /* Start Page - Королевский стиль */
+        .start-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            background: radial-gradient(ellipse at center, rgba(75, 0, 130, 0.1) 0%, transparent 70%);
+            position: relative;
+        }
+
+        .start-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(75, 0, 130, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .kingus-title {
+            font-family: 'Cinzel', serif;
+            font-size: 72px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: royalGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes royalGlow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8)); }
+        }
+
+        .kingus-subtitle {
+            font-size: 20px;
+            margin-bottom: 50px;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .bookmarks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 25px;
+            max-width: 800px;
+            width: 100%;
+            padding: 0 20px;
+            z-index: 1;
+        }
+
+        .bookmark {
+            background: linear-gradient(135deg, var(--dark-surface), var(--royal-purple-dark));
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bookmark::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0.1;
+            transition: left 0.3s ease;
+        }
+
+        .bookmark:hover::before {
+            left: 0;
+        }
+
+        .bookmark:hover {
+            transform: translateY(-5px);
+            border-color: var(--royal-gold);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .bookmark-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .bookmark-title {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .bookmark-url {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 1000;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--dark-border);
+            border-top: 3px solid var(--royal-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Registrar Modal - Королевский стиль */
+        .registrar-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .registrar-modal.active {
+            display: flex;
+        }
+
+        .registrar-content {
+            background: linear-gradient(135deg, var(--dark-surface), var(--royal-purple-dark));
+            border: 2px solid var(--royal-gold);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .registrar-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .registrar-title {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            color: var(--royal-gold);
+            margin-bottom: 10px;
+        }
+
+        .registrar-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .domain-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .domain-input {
+            flex: 1;
+            background: linear-gradient(135deg, var(--dark-bg), var(--dark-surface));
+            border: 2px solid var(--dark-border);
+            color: var(--text-primary);
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .domain-input:focus {
+            outline: none;
+            border-color: var(--royal-gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+
+        .search-btn {
+            background: var(--accent-gradient);
+            border: none;
+            color: var(--dark-bg);
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .domain-results {
+            margin-bottom: 30px;
+        }
+
+        .domain-item {
+            background: linear-gradient(135deg, var(--dark-bg), var(--dark-surface));
+            border: 1px solid var(--dark-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .domain-item:hover {
+            border-color: var(--royal-gold);
+            transform: translateX(5px);
+        }
+
+        .domain-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .domain-price {
+            color: var(--royal-gold);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #10B981, #059669);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .code-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--dark-border);
+        }
+
+        .code-title {
+            font-size: 20px;
+            color: var(--royal-gold);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .code-input {
+            width: 100%;
+            background: linear-gradient(135deg, var(--dark-bg), var(--dark-surface));
+            border: 2px solid var(--dark-border);
+            color: var(--text-primary);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--royal-gold);
+        }
+
+        .submit-code-btn {
+            background: var(--accent-gradient);
+            border: none;
+            color: var(--dark-bg);
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .submit-code-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--royal-gold);
+            transform: scale(1.2);
+        }
+
+        /* Site Preview */
+        .site-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--dark-bg);
+            display: none;
+            z-index: 3000;
+        }
+
+        .site-preview.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, var(--dark-surface), var(--royal-purple-dark));
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--royal-gold);
+        }
+
+        .preview-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            color: var(--royal-gold);
+        }
+
+        .preview-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview-close:hover {
+            color: var(--royal-gold);
+            transform: scale(1.2);
+        }
+
+        .preview-frame {
+            flex: 1;
+            width: 100%;
             border: none;
             background: white;
-            overflow: auto;
         }
     </style>
 </head>
 <body>
-    <div class="editor-container">
-        <div class="editor-panel">
-            <div class="toolbar">
-                <div>
-                    <button onclick="saveCode()">Сохранить</button>
-                    <button onclick="loadCode()">Загрузить</button>
-                    <button onclick="exportCode()">Экспорт</button>
-                    <button onclick="createShareLink()">Поделиться</button>
+    <div class="browser-container">
+        <div class="toolbar">
+            <div class="logo">Kingus</div>
+            <div class="nav-buttons">
+                <button class="nav-btn" id="backBtn" disabled>←</button>
+                <button class="nav-btn" id="forwardBtn" disabled>→</button>
+                <button class="nav-btn" id="reloadBtn">↻</button>
+            </div>
+            <div class="url-bar">
+                <div class="url-input-wrapper">
+                    <span class="url-icon">👑</span>
+                    <input type="text" class="url-input" id="urlInput" placeholder="Введите адрес сайта или поисковый запрос...">
                 </div>
-                <div class="theme-switcher">
-                    <button onclick="toggleTheme()">🌙</button>
-                </div>
+                <button class="go-btn" id="goBtn">Перейти</button>
             </div>
-            <div class="code-editor">
-                <textarea id="html" placeholder="HTML"></textarea>
-            </div>
-            <div class="code-editor">
-                <textarea id="css" placeholder="CSS"></textarea>
-            </div>
-            <div class="code-editor">
-                <textarea id="js" placeholder="JavaScript"></textarea>
-            </div>
+            <button class="registrar-btn" id="registrarBtn">
+                <span>👑</span>
+                <span>Регистратор Королевств</span>
+            </button>
         </div>
-        <div class="preview-container">
-            <iframe id="preview" srcdoc="" frameborder="0"></iframe>
+        
+        <div class="tabs-container">
+            <div class="tabs" id="tabs"></div>
+            <button class="new-tab-btn" id="newTabBtn">+</button>
+        </div>
+        
+        <div class="content-area" id="contentArea">
+            <div class="start-page" id="startPage">
+                <h1 class="kingus-title">Kingus</h1>
+                <p class="kingus-subtitle">Королевский браузер для настоящих властелинов интернета</p>
+                <div class="bookmarks">
+                    <div class="bookmark" data-url="https://google.com">
+                        <span class="bookmark-icon">🔍</span>
+                        <div class="bookmark-title">Google</div>
+                        <div class="bookmark-url">google.com</div>
+                    </div>
+                    <div class="bookmark" data-url="https://youtube.com">
+                        <span class="bookmark-icon">📺</span>
+                        <div class="bookmark-title">YouTube</div>
+                        <div class="bookmark-url">youtube.com</div>
+                    </div>
+                    <div class="bookmark" data-url="https://github.com">
+                        <span class="bookmark-icon">💻</span>
+                        <div class="bookmark-title">GitHub</div>
+                        <div class="bookmark-url">github.com</div>
+                    </div>
+                    <div class="bookmark" data-url="https://stackoverflow.com">
+                        <span class="bookmark-icon">❓</span>
+                        <div class="bookmark-title">Stack Overflow</div>
+                        <div class="bookmark-url">stackoverflow.com</div>
+                    </div>
+                </div>
+            </div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/html.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+    <!-- Registrar Modal -->
+    <div class="registrar-modal" id="registrarModal">
+        <div class="registrar-content">
+            <button class="close-modal" id="closeModal">×</button>
+            <div class="registrar-header">
+                <h2 class="registrar-title">Регистратор Королевств</h2>
+                <p class="registrar-subtitle">Придумайте название для своего королевства (домена)</p>
+            </div>
+            
+            <div class="domain-search">
+                <input type="text" class="domain-input" id="domainInput" placeholder="Введите название домена...">
+                <button class="search-btn" id="searchBtn">Найти</button>
+            </div>
+            
+            <div class="domain-results" id="domainResults"></div>
+            
+            <div class="code-section">
+                <h3 class="code-title">Вставьте код вашего сайта</h3>
+                <textarea class="code-input" id="codeInput" placeholder="Вставьте сюда HTML/CSS/JS код вашего сайта..."></textarea>
+                <button class="submit-code-btn" id="submitCodeBtn">Запустить сайт</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Site Preview -->
+    <div class="site-preview" id="sitePreview">
+        <div class="preview-header">
+            <h3 class="preview-title" id="previewTitle">Ваш сайт</h3>
+            <button class="preview-close" id="previewClose">×</button>
+        </div>
+        <iframe class="preview-frame" id="previewFrame"></iframe>
+    </div>
+
     <script>
-        let savedCode = {
-            html: '',
-            css: '',
-            js: ''
-        };
-        let currentTheme = 'dark';
+        class KingusBrowser {
+            constructor() {
+                this.tabs = [];
+                this.activeTabId = null;
+                this.tabIdCounter = 0;
+                this.history = new Map();
+                this.purchasedDomains = new Set();
+                this.userSites = new Map();
+                
+                this.init();
+            }
 
-        function updatePreview() {
-            const html = document.getElementById('html').value;
-            const css = document.getElementById('css').value;
-            const js = document.getElementById('js').value;
-            
-            const preview = document.getElementById('preview').contentWindow.document;
-            preview.open();
-            preview.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>${css}</style>
-                </head>
-                <body>${html}</body>
-                <script>${js}</script>
-                </html>
-            `);
-            preview.close();
-            
-            highlightCode();
-        }
+            init() {
+                this.setupEventListeners();
+                this.newTab();
+            }
 
-        function highlightCode() {
-            document.querySelectorAll('textarea').forEach(textarea => {
-                hljs.highlightElement(textarea);
-            });
-        }
+            setupEventListeners() {
+                document.getElementById('backBtn').addEventListener('click', () => this.goBack());
+                document.getElementById('forwardBtn').addEventListener('click', () => this.goForward());
+                document.getElementById('reloadBtn').addEventListener('click', () => this.reload());
+                document.getElementById('goBtn').addEventListener('click', () => this.navigate());
+                document.getElementById('newTabBtn').addEventListener('click', () => this.newTab());
+                document.getElementById('urlInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.navigate();
+                });
 
-        function saveCode() {
-            savedCode.html = document.getElementById('html').value;
-            savedCode.css = document.getElementById('css').value;
-            savedCode.js = document.getElementById('js').value;
-            localStorage.setItem('code', JSON.stringify(savedCode));
-        }
+                // Регистратор королевств
+                document.getElementById('registrarBtn').addEventListener('click', () => this.openRegistrar());
+                document.getElementById('closeModal').addEventListener('click', () => this.closeRegistrar());
+                document.getElementById('searchBtn').addEventListener('click', () => this.searchDomains());
+                document.getElementById('domainInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.searchDomains();
+                });
+                document.getElementById('submitCodeBtn').addEventListener('click', () => this.submitCode());
+                document.getElementById('previewClose').addEventListener('click', () => this.closePreview());
 
-        function loadCode() {
-            const storedCode = localStorage.getItem('code');
-            if (storedCode) {
-                const code = JSON.parse(storedCode);
-                document.getElementById('html').value = code.html;
-                document.getElementById('css').value = code.css;
-                document.getElementById('js').value = code.js;
-                updatePreview();
+                // Закладки
+                document.querySelectorAll('.bookmark').forEach(bookmark => {
+                    bookmark.addEventListener('click', () => {
+                        const url = bookmark.dataset.url;
+                        this.navigateToUrl(url);
+                    });
+                });
+
+                // Закрытие модального окна по клику вне его
+                document.getElementById('registrarModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'registrarModal') {
+                        this.closeRegistrar();
+                    }
+                });
+            }
+
+            newTab() {
+                const tabId = ++this.tabIdCounter;
+                const tab = {
+                    id: tabId,
+                    title: 'Новая вкладка',
+                    url: '',
+                    history: [],
+                    historyIndex: -1
+                };
+
+                this.tabs.push(tab);
+                this.createTabElement(tab);
+                this.switchTab(tabId);
+            }
+
+            createTabElement(tab) {
+                const tabElement = document.createElement('div');
+                tabElement.className = 'tab';
+                tabElement.dataset.tabId = tab.id;
+                tabElement.innerHTML = `
+                    <span class="tab-title">${tab.title}</span>
+                    <button class="tab-close" onclick="browser.closeTab(${tab.id})">×</button>
+                `;
+                tabElement.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('tab-close')) {
+                        this.switchTab(tab.id);
+                    }
+                });
+
+                document.getElementById('tabs').appendChild(tabElement);
+            }
+
+            switchTab(tabId) {
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`[data-tab-id="${tabId}"]`).classList.add('active');
+
+                this.activeTabId = tabId;
+                const tab = this.tabs.find(t => t.id === tabId);
+
+                document.getElementById('urlInput').value = tab.url || '';
+                this.updateContent();
+            }
+
+            closeTab(tabId) {
+                if (this.tabs.length <= 1) return;
+
+                const index = this.tabs.findIndex(t => t.id === tabId);
+                this.tabs.splice(index, 1);
+
+                const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`);
+                tabElement.remove();
+
+                if (this.activeTabId === tabId) {
+                    const newActiveTab = this.tabs[index] || this.tabs[0];
+                    this.switchTab(newActiveTab.id);
+                }
+            }
+
+            navigate() {
+                const input = document.getElementById('urlInput').value.trim();
+                if (!input) return;
+
+                let url = input;
+                if (!input.startsWith('http://') && !input.startsWith('https://')) {
+                    if (input.includes('.') && !input.includes(' ')) {
+                        url = 'https://' + input;
+                    } else {
+                        url = 'https://www.google.com/search?q=' + encodeURIComponent(input);
+                    }
+                }
+
+                this.navigateToUrl(url);
+            }
+
+            navigateToUrl(url) {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (!tab) return;
+
+                // Проверяем, не является ли это пользовательским доменом
+                const domain = this.extractDomain(url);
+                if (this.userSites.has(domain)) {
+                    this.showUserSite(domain);
+                    return;
+                }
+
+                document.getElementById('loading').classList.add('active');
+                document.getElementById('startPage').style.display = 'none';
+
+                let webview = document.getElementById(`webview-${this.activeTabId}`);
+                if (!webview) {
+                    webview = document.createElement('iframe');
+                    webview.id = `webview-${this.activeTabId}`;
+                    webview.className = 'webview';
+                    document.getElementById('contentArea').appendChild(webview);
+                }
+
+                webview.src = url;
+                webview.onload = () => {
+                    document.getElementById('loading').classList.remove('active');
+                    webview.classList.add('active');
+                    
+                    try {
+                        tab.title = webview.contentDocument.title || 'Без названия';
+                        tab.url = url;
+                        this.updateTabElement(tab);
+                        this.updateHistory(tab, url);
+                    } catch (e) {
+                        tab.title = 'Веб-страница';
+                        tab.url = url;
+                        this.updateTabElement(tab);
+                        this.updateHistory(tab, url);
+                    }
+                };
+
+                webview.onerror = () => {
+                    document.getElementById('loading').classList.remove('active');
+                    alert('Не удалось загрузить страницу');
+                };
+            }
+
+            extractDomain(url) {
+                try {
+                    const urlObj = new URL(url);
+                    return urlObj.hostname.replace('www.', '');
+                } catch {
+                    return url.replace('www.', '');
+                }
+            }
+
+            updateTabElement(tab) {
+                const tabElement = document.querySelector(`[data-tab-id="${tab.id}"] .tab-title`);
+                if (tabElement) {
+                    tabElement.textContent = tab.title;
+                }
+            }
+
+            updateHistory(tab, url) {
+                tab.history = tab.history.slice(0, tab.historyIndex + 1);
+                tab.history.push(url);
+                tab.historyIndex = tab.history.length - 1;
+                this.updateNavButtons();
+            }
+
+            updateNavButtons() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (!tab) return;
+
+                document.getElementById('backBtn').disabled = tab.historyIndex <= 0;
+                document.getElementById('forwardBtn').disabled = tab.historyIndex >= tab.history.length - 1;
+            }
+
+            goBack() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab && tab.historyIndex > 0) {
+                    tab.historyIndex--;
+                    this.navigateToUrl(tab.history[tab.historyIndex]);
+                }
+            }
+
+            goForward() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab && tab.historyIndex < tab.history.length - 1) {
+                    tab.historyIndex++;
+                    this.navigateToUrl(tab.history[tab.historyIndex]);
+                }
+            }
+
+            reload() {
+                const webview = document.getElementById(`webview-${this.activeTabId}`);
+                if (webview && webview.src) {
+                    webview.src = webview.src;
+                }
+            }
+
+            updateContent() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (!tab) return;
+
+                document.querySelectorAll('.webview').forEach(wv => wv.classList.remove('active'));
+                
+                const webview = document.getElementById(`webview-${this.activeTabId}`);
+                if (webview && webview.src && webview.src !== 'about:blank') {
+                    document.getElementById('startPage').style.display = 'none';
+                    webview.classList.add('active');
+                } else {
+                    document.getElementById('startPage').style.display = 'flex';
+                }
+
+                document.getElementById('urlInput').value = tab.url || '';
+                this.updateNavButtons();
+            }
+
+            // Регистратор королевств
+            openRegistrar() {
+                document.getElementById('registrarModal').classList.add('active');
+                this.searchDomains();
+            }
+
+            closeRegistrar() {
+                document.getElementById('registrarModal').classList.remove('active');
+            }
+
+            searchDomains() {
+                const query = document.getElementById('domainInput').value.trim();
+                const domains = this.generateDomainSuggestions(query);
+                this.displayDomainResults(domains);
+            }
+
+            generateDomainSuggestions(query) {
+                const tlds = ['.king', '.royal', '.crown', '.realm', '.empire', '.throne'];
+                const suggestions = [];
+                
+                if (query) {
+                    tlds.forEach(tld => {
+                        suggestions.push({
+                            name: query.toLowerCase() + tld,
+                            price: Math.floor(Math.random() * 900) + 100,
+                            available: Math.random() > 0.3
+                        });
+                    });
+                } else {
+                    const royalWords = ['golden', 'crystal', 'dragon', 'phoenix', 'royal', 'imperial', 'celestial', 'mystic'];
+                    const kingdomWords = ['kingdom', 'realm', 'empire', 'throne', 'crown', 'palace', 'fortress', 'sanctuary'];
+                    
+                    for (let i = 0; i < 8; i++) {
+                        const word1 = royalWords[Math.floor(Math.random() * royalWords.length)];
+                        const word2 = kingdomWords[Math.floor(Math.random() * kingdomWords.length)];
+                        const tld = tlds[Math.floor(Math.random() * tlds.length)];
+                        
+                        suggestions.push({
+                            name: word1 + word2 + tld,
+                            price: Math.floor(Math.random() * 900) + 100,
+                            available: Math.random() > 0.3
+                        });
+                    }
+                }
+                
+                return suggestions;
+            }
+
+            displayDomainResults(domains) {
+                const resultsContainer = document.getElementById('domainResults');
+                resultsContainer.innerHTML = '';
+                
+                domains.forEach(domain => {
+                    const domainItem = document.createElement('div');
+                    domainItem.className = 'domain-item';
+                    domainItem.innerHTML = `
+                        <div>
+                            <div class="domain-name">${domain.name}</div>
+                            <div style="color: ${domain.available ? '#10B981' : '#EF4444'}; font-size: 12px;">
+                                ${domain.available ? '✓ Доступен' : '✗ Занят'}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="domain-price">$${domain.price}</div>
+                            <button class="buy-btn" ${!domain.available ? 'disabled' : ''} onclick="browser.buyDomain('${domain.name}')">
+                                ${domain.available ? 'Купить' : 'Недоступно'}
+                            </button>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(domainItem);
+                });
+            }
+
+            buyDomain(domainName) {
+                if (this.purchasedDomains.has(domainName)) {
+                    alert('Этот домен уже куплен!');
+                    return;
+                }
+                
+                this.purchasedDomains.add(domainName);
+                alert(`Поздравляем! Вы приобрели домен ${domainName} за $${Math.floor(Math.random() * 900) + 100}!\n\nТеперь вы можете вставить код вашего сайта ниже.`);
+                
+                // Обновляем список доменов
+                this.searchDomains();
+                
+                // Добавляем домен в закладки
+                this.addDomainToBookmarks(domainName);
+            }
+
+            addDomainToBookmarks(domainName) {
+                const bookmarksContainer = document.querySelector('.bookmarks');
+                const bookmark = document.createElement('div');
+                bookmark.className = 'bookmark';
+                bookmark.dataset.url = `http://${domainName}`;
+                bookmark.innerHTML = `
+                    <span class="bookmark-icon">👑</span>
+                    <div class="bookmark-title">${domainName}</div>
+                    <div class="bookmark-url">Ваш сайт</div>
+                `;
+                bookmark.addEventListener('click', () => {
+                    this.showUserSite(domainName);
+                });
+                bookmarksContainer.appendChild(bookmark);
+            }
+
+            submitCode() {
+                const code = document.getElementById('codeInput').value.trim();
+                if (!code) {
+                    alert('Пожалуйста, вставьте код вашего сайта!');
+                    return;
+                }
+                
+                const domainName = document.getElementById('domainInput').value.trim();
+                if (!domainName) {
+                    alert('Пожалуйста, введите название домена!');
+                    return;
+                }
+                
+                if (!this.purchasedDomains.has(domainName)) {
+                    alert('Сначала купите домен!');
+                    return;
+                }
+                
+                // Сохраняем сайт
+                this.userSites.set(domainName, code);
+                
+                alert(`Сайт для ${domainName} успешно создан!`);
+                this.closeRegistrar();
+                
+                // Показываем сайт
+                this.showUserSite(domainName);
+            }
+
+            showUserSite(domainName) {
+                const code = this.userSites.get(domainName);
+                if (!code) {
+                    alert('Сайт не найден!');
+                    return;
+                }
+                
+                const previewFrame = document.getElementById('previewFrame');
+                const previewTitle = document.getElementById('previewTitle');
+                
+                previewTitle.textContent = domainName;
+                
+                // Создаем blob с HTML кодом
+                const blob = new Blob([code], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                previewFrame.src = url;
+                document.getElementById('sitePreview').classList.add('active');
+                
+                // Обновляем текущую вкладку
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab) {
+                    tab.title = domainName;
+                    tab.url = `http://${domainName}`;
+                    this.updateTabElement(tab);
+                }
+            }
+
+            closePreview() {
+                document.getElementById('sitePreview').classList.remove('active');
             }
         }
 
-        function exportCode() {
-            const html = document.getElementById('html').value;
-            const css = document.getElementById('css').value;
-            const js = document.getElementById('js').value;
-            const blob = new Blob([html, css, js], {type: 'text/plain'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'code.zip';
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function createShareLink() {
-            const html = encodeURIComponent(document.getElementById('html').value);
-            const css = encodeURIComponent(document.getElementById('css').value);
-            const js = encodeURIComponent(document.getElementById('js').value);
-            
-            const shareUrl = `https://yourdomain.com/preview?html=${html}&css=${css}&js=${js}`;
-            
-            navigator.clipboard.writeText(shareUrl)
-                .then(() => {
-                    alert('Ссылка скопирована в буфер обмена!');
-                })
-                .catch(err => {
-                    console.error('Не удалось скопировать ссылку:', err);
-                });
-        }
-
-        function toggleTheme() {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.classList.toggle('light-theme');
-            
-            if (currentTheme === 'light') {
-                document.querySelector('.theme-switcher button').innerText = '🌞';
-            } else {
-                document.querySelector('.theme-switcher button').innerText = '🌙';
-                            }
-        }
-
-        function autoSave() {
-            setInterval(() => {
-                saveCode();
-            }, 3000);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            hljs.initHighlightingOnLoad();
-            updatePreview();
-            autoSave();
-            loadCode();
-            
-            document.querySelectorAll('textarea').forEach(textarea => {
-                textarea.addEventListener('input', updatePreview);
-            });
-
-            // Добавляем стили для светлой темы
-            const lightThemeStyles = `
-                :root.light-theme {
-                    --primary-color: #f5f5f5;
-                    --secondary-color: #e5e5e5;
-                    --text-color: #333;
-                    --accent-color: #4caf50;
-                }
-            `;
-
-            const style = document.createElement('style');
-            style.innerHTML = lightThemeStyles;
-            document.head.appendChild(style);
-        });
+        // Инициализируем браузер
+        const browser = new KingusBrowser();
     </script>
 </body>
 </html>
