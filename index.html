@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Web-creator – инновационная студия</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- новый шрифт -->
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root{
       --accent:#6366f1;
@@ -46,17 +46,13 @@
     .price{margin-top:auto;font-weight:700;color:var(--accent)}
     .review .stars{color:#f59e0b;margin-bottom:.5rem}
     .footer{padding:2rem 0;text-align:center;font-size:.9rem;color:var(--muted)}
-
-    /* анимация печати */
-    .type{
-      display:inline-block;
-      overflow:hidden;
-      white-space:nowrap;
-      border-right:3px solid var(--accent);
-      animation:typing 2s steps(24,end),blink .7s infinite;
-    }
+    .type{display:inline-block;overflow:hidden;white-space:nowrap;border-right:3px solid var(--accent);animation:typing 2.5s steps(26,end),blink .7s infinite}
     @keyframes typing{from{width:0}to{width:100%}}
     @keyframes blink{0%,100%{border-color:transparent}50%{border-color:var(--accent)}}
+    .live-chat{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#fff;padding:14px;border-radius:50%;box-shadow:0 4px 14px rgba(99,102,241,.4);cursor:pointer;z-index:200;transition:.3s}
+    .live-chat:hover{transform:scale(1.1)}
+    .contact-box{display:grid;gap:2rem;align-items:center}
+    .contact-icon{font-size:2.2rem;color:var(--accent);margin-bottom:.5rem}
   </style>
 </head>
 <body>
@@ -90,70 +86,9 @@
     </div>
     <div class="stats">
       <div class="container grid">
-        <div><span>120+</span>сайтов создано</div>
-        <div><span>50+</span>доменов подключено</div>
-        <div><span>7 лет</span>опыта</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- О{widthО М}Е -->
-: <section id="about">
-    <div class="container grid">
-      <div>
-        <h1>Обо мне</h1>
-        <p>Привет! Я — full-stack разработчик, который объедин100%}}
-жен   ерную точ blink{ креативный дизайн. Работаю только с современным стеком: Vite, Tailwind, Astro, SvelteKit.</p>
-        <ul style="margin-top:1rem">
-          <li>100% адаптивность и доступность</li>
-          <li>Мгновенная загрузка (90+ Lighthouse)</li>
-          <li>Поддержка 24/7 и бесплатные апдейты 1 год</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- УСЛУГИ (обновлённые формулировки) -->
-  <section id="services">
-    <div class="container">
-      <h1>Услуги и цены</h1>
-     0%,100%{border-color:transparent}50%{border-color:var(--accent)}}
-  </style>
-</head>
-<body>
-
-<header>
-  <div class="container flex">
-    <a class="logo">Web-creator</a>
-    <nav>
-      <ul id="nav">
-        <li data-page="home" class="active">Главная</li>
-        <li data-page="about">Обо мне</li>
-        <li data-page="services">Услуги</li>
-        <li data-page="portfolio">Портфолио</li>
-        <li data-page="reviews">О нас пишут</li>
-        <li data-page="contact">Контакты</li>
-      </ul>
-    </nav>
-  </div>
-</header>
-
-<main id="main">
-
-  <!-- ГЛАВНАЯ -->
-  <section id="home" class="active">
-    <div class="container grid" style="padding-top:5rem">
-      <div>
-        <h1><span class="type">Создаю сайты, которые продают</span></h1>
-        <p class="lead">Инновационные решения без лишнего шума. Чистый код, плавные анимации, мгновенная скорость.</p>
-        <a href="#contact" class="btn page-link" data-page="contact">Обсудить проект</a>
-      </div>
-    </div>
-    <div class="stats">
-      <div class="container grid">
-        <div><span>120+</span>сайтов создано</div>
-        <div><span>50+</span>доменов подключено</div>
-        <div><span>7 лет</span>опыта</div>
+        <div><span class="counter" data-target="120">0</span>сайтов создано</div>
+        <div><span class="counter" data-target="50">0</span>доменов подключено</div>
+        <div><span class="counter" data-target="7">0</span>лет опыта</div>
       </div>
     </div>
   </section>
@@ -173,7 +108,7 @@
     </div>
   </section>
 
-  <!-- УСЛУГИ (обновлённые формулировки) -->
+  <!-- УСЛУГИ (кнопки ведут в контакты) -->
   <section id="services">
     <div class="container">
       <h1>Услуги и цены</h1>
@@ -181,40 +116,46 @@
         <article class="card">
           <h3>Лендинг нового поколения</h3>
           <p>One-page с плавными переходами, анимациями при скролле и конверсией до 12%.</p>
-          <div class="price">от 20 000 ₽</div>
+          <a href="#contact" class="btn page-link" data-page="contact">Заказать</a>
         </article>
         <article class="card">
           <h3>Корпоративный сайт</h3>
           <p>Мультиязычность, headless CMS, интеграция с CRM и календарями.</p>
-          <div class="price">от 50 000 ₽</div>
+          <a href="#contact" class="btn page-link" data-page="contact">Заказать</a>
         </article>
         <article class="card">
           <h3>Интернет-магазин</h3>
           <p>SSR, оплата Apple/Google Pay, омниканальность, аналитика в реальном времени.</p>
-          <div class="price">от 100 000 ₽</div>
+          <a href="#contact" class="btn page-link" data-page="contact">Заказать</a>
         </article>
         <article class="card">
           <h3>Домен + хостинг + CI/CD</h3>
           <p>Автоматический деплой, SSL, CDN, ежедневные бэкапы.</p>
-          <div class="price">от 3 000 ₽/год</div>
+          <a href="#contact" class="btn page-link" data-page="contact">Заказать</a>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- ПОРТФОЛИО -->
+  <!-- ПОРТФОЛИО (живые ссылки) -->
   <section id="portfolio">
     <div class="container">
       <h1>Портфолио</h1>
       <div class="cards">
-        <div class="card"><h3>TimeFlow</h3><p>Интернет-магазин часов на SvelteKit. Конверсия +32%.</p></div>
-        <div class="card"><h3>DevPoint Corp</h3><p>Корпоративный сайт с интерактивной 3D-галереей.</p></div>
-        <div class="card"><h3>Brew Lab</h3><p>Лендинг кофейни с динамическим меню и онлайн-оплатой.</p></div>
+        <a href="https://timeflow-shop-demo.vercel.app" target="_blank" class="card">
+          <h3>TimeFlow</h3><p>Интернет-магазин часов на SvelteKit. Конверсия +32%.</p>
+        </a>
+        <a href="https://devpoint-corp-demo.vercel.app" target="_blank" class="card">
+          <h3>DevPoint Corp</h3><p>Корпоративный сайт с интерактивной 3D-галереей.</p>
+        </a>
+        <a href="https://brew-lab-demo.vercel.app" target="_blank" class="card">
+          <h3>Brew Lab</h3><p>Лендинг кофейни с динамическим меню и онлайн-оплатой.</p>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- О НАС ПИШУТ (обновлённые отзывы) -->
+  <!-- О НАС ПИШУТ -->
   <section id="reviews">
     <div class="container">
       <h1>О нас пишут</h1>
@@ -238,17 +179,18 @@
     </div>
   </section>
 
-  <!-- КОНТАКТЫ -->
+  <!-- КОНТАКТЫ (красивый блок) -->
   <section id="contact">
-    <div class="container grid">
+    <div class="container contact-box">
       <div>
         <h1>Давайте обсудим проект</h1>
         <p>Пишите в любое время — отвечу в течение часа.</p>
-        <ul class="contacts">
-          <li><strong>Email:</strong> <a href="mailto:jeffgoldenpage@gmail.com">jeffgoldenpage@gmail.com</a></li>
-        </ul>
+        <div class="card" style="display:inline-block;margin-top:1rem">
+          <div class="contact-icon"><i class="fa-regular fa-envelope"></i></div>
+          <strong>Email:</strong> <a href="mailto:jeffgoldenpage@gmail.com">jeffgoldenpage@gmail.com</a>
+        </div>
       </div>
-      <form class="form" action="https://formspree.io/f/your-form-id" method="POST">
+      <form action="https://formspree.io/f/myyvozzd" method="POST">
         <input type="text" name="name" placeholder="Имя" required>
         <input type="email" name="email" placeholder="Email" required>
         <textarea name="message" placeholder="Описание проекта" required></textarea>
@@ -262,7 +204,12 @@
   <div class="container">© 2025 Web-creator</div>
 </footer>
 
+<div class="live-chat" title="Написать в Telegram">
+  <a href="https://t.me/jeffgoldenpage" target="_blank" style="color:#fff"><i class="fa-brands fa-telegram"></i></a>
+</div>
+
 <script>
+  // переключение страниц
   const nav=document.getElementById('nav');
   const pages=document.querySelectorAll('main>section');
   nav.addEventListener('click',e=>{
@@ -277,6 +224,34 @@
     e.preventDefault();
     nav.querySelector(`[data-page="${e.target.dataset.page}"]`).click();
   }));
+
+  // анимация цифр
+  const counters=document.querySelectorAll('.counter');
+  const speed=200;
+  const animate=counter=>{
+    const target=+counter.dataset.target;
+    const inc=target/speed;
+    let count=0;
+    const update=()=>{
+      if(count<target){
+        count+=inc;
+        counter.innerText=Math.ceil(count);
+        setTimeout(update,20);
+      }else{
+        counter.innerText=target;
+      }
+    };
+    update();
+  };
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        animate(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  },{threshold:0.7});
+  counters.forEach(c=>observer.observe(c));
 </script>
 </body>
 </html>
